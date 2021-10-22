@@ -24,7 +24,13 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         else:
             raise Exception('Is a > than L?')
     elif support_type == 'simply_supported':
-        pass
+        b = (L - a)
+        if 0.0 <= x < a:
+            return (-F * b * x * (L ** 2 - x ** 2 - (L - a) **2)) / (6 * L * E[material] * calc_I(xsection))
+        elif a <= x <= L:
+            return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
+        else:
+            raise Exception('Is a > than L?')
     else:
         raise Exception('support_type not compatible')
     
@@ -35,6 +41,8 @@ def calc_I(xsection = None):
     elif xsection['type'] == 'circle':
         return (np.pi * xsection['r'] ** 4) / 4
     else:
-        raise Exception('Beam xsection type not compatible')
+        raise Exception('xsection not compatible')
     
 print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
+print( beam_deflection(F = 113.2, x = 2.3, material = 'wood', xsection = {'type': 'circle', 'r': 3.2}, a = 5.0, L = 10.0, support_type='cantilever') )
+print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
