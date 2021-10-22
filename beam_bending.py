@@ -15,16 +15,26 @@ E = {
 # L: total length of beam in meters. this is a float.
 # support_type: type of beam support. expected value: 'cantilever', 'simply_supported'
 
-def beam_deflection(F = 0.0, x = 0.0, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 1.0, 'h': 1.0}, a = 0.0, L = 0.0, support_type = 'cantilever'):
+def beam_deflection(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
     if support_type == 'cantilever':
-        if 0 <= x < a:
+        if 0.0 <= x < a:
             return (-F * x ** 2 * (3 * a - x)) / (6 * E[material] * calc_I(xsection))
         elif a <= x <= L:
             return (-F * a ** 2 * (3 * x - a)) / (6 * E[material] * calc_I(xsection))
+        else:
+            raise Exception('Is a > than L?')
+    elif support_type == 'simply_supported':
+        pass
+    else:
+        raise Exception('support_type not compatible')
     
     
-def calc_I(xsection = {'type': 'rectangular', 'b': 1.0, 'h': 1.0}):
+def calc_I(xsection = None):
     if xsection['type'] == 'rectangular':
         return (xsection['b'] * xsection['h'] ** 3) / 12
     elif xsection['type'] == 'circle':
         return (np.pi * xsection['r'] ** 4) / 4
+    else:
+        raise Exception('Beam xsection type not compatible')
+    
+print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
