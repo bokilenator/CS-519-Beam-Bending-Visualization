@@ -1,42 +1,36 @@
-import plotly.graph_objects as go
-import numpy as np
+# Run this app with `python app.py` and
+# visit http://127.0.0.1:8050/ in your web browser.
 
-# Create figure
-fig = go.Figure()
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import plotly.express as px
+import pandas as pd
 
-# Add traces, one for each slider step
-for step in np.arange(0, 5, 0.1):
-    fig.add_trace(
-        go.Scatter(
-            visible=False,
-            line=dict(color="#00CED1", width=6),
-            name="𝜈 = " + str(step),
-            x=np.arange(0, 10, 0.01),
-            y=np.sin(step * np.arange(0, 10, 0.01))))
+app = dash.Dash(__name__)
 
-# Make 10th trace visible
-fig.data[10].visible = True
+# assume you have a "long-form" data frame
+# see https://plotly.com/python/px-arguments/ for more options
+df = pd.DataFrame({
+    "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
+    "Amount": [4, 1, 2, 2, 4, 5],
+    "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
+})
 
-# Create and add slider
-steps = []
-for i in range(len(fig.data)):
-    step = dict(
-        method="update",
-        args=[{"visible": [False] * len(fig.data)},
-              {"title": "Slider switched to step: " + str(i)}],  # layout attribute
+fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
+
+app.layout = html.Div(children=[
+    html.H1(children='Hello Dash'),
+
+    html.Div(children='''
+        Dash: A web application framework for your data.
+    '''),
+
+    dcc.Graph(
+        id='example-graph',
+        figure=fig
     )
-    step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
-    steps.append(step)
+])
 
-sliders = [dict(
-    active=10,
-    currentvalue={"prefix": "Frequency: "},
-    pad={"t": 50},
-    steps=steps
-)]
-
-fig.update_layout(
-    sliders=sliders
-)
-
-fig.show()
+if __name__ == '__main__':
+    app.run_server(debug=True)
