@@ -96,3 +96,14 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
 # print( beam_bending_moment(F = 113.2, x = 4.3, a = 4.3, L = 10.0, support_type='simply_supported') )
 # print( beam_bending_moment(F = 113.2, x = 5.7, a = 4.3, L = 10.0, support_type='simply_supported') )
 # print( beam_bending_moment(F = 113.2, x = 10.0, a = 4.3, L = 10.0, support_type='simply_supported') )
+
+def calc_A(xsection = None):
+    if xsection['type'] == 'rectangular':
+        return xsection['b'] * xsection['h']
+    elif xsection['type'] == 'circle':
+        return np.pi * xsection['r'] ** 2
+    else:
+        raise Exception(error_msg_xsection)
+    
+def beam_shear_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+    return beam_shear_force(F, x, a, L, support_type) / calc_A(xsection)
