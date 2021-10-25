@@ -107,3 +107,14 @@ def calc_A(xsection = None):
     
 def beam_shear_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
     return beam_shear_force(F, x, a, L, support_type) / calc_A(xsection)
+
+def calc_c(xsection = None):
+    if xsection['type'] == 'rectangular':
+        return 0.5 * xsection['h']
+    elif xsection['type'] == 'circle':
+        return xsection['r']
+    else:
+        raise Exception(error_msg_xsection)
+    
+def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+    return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
