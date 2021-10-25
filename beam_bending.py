@@ -7,6 +7,10 @@ E = {
     'titanium': 116.0 * 10**9,
     'steel': 200.0 * 10**9,}
 
+error_msg_a = 'Is a between 0 and L?'
+error_msg_support_type = 'Invalid support_type'
+error_msg_xsection = 'Invalid xsection'
+
 # F: force magnitude in newtons. this is a float.
 # x: inspection location, beam deflection at this location, in meters. this is a float.
 # material: will affect E (Young's modulus). expected value: 'aluminum', 'wood', 'titanium', 'steel'
@@ -22,7 +26,7 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         elif a <= x <= L:
             return (-F * a ** 2 * (3 * x - a)) / (6 * E[material] * calc_I(xsection))
         else:
-            raise Exception('Is a > than L?')
+            raise Exception(error_msg_a)
     elif support_type == 'simply_supported':
         b = (L - a)
         if 0.0 <= x < a:
@@ -30,9 +34,9 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         elif a <= x <= L:
             return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
         else:
-            raise Exception('Is a > than L?')
+            raise Exception(error_msg_a)
     else:
-        raise Exception('support_type not compatible')
+        raise Exception(error_msg_support_type)
     
     
 def calc_I(xsection = None):
@@ -41,8 +45,21 @@ def calc_I(xsection = None):
     elif xsection['type'] == 'circle':
         return (np.pi * xsection['r'] ** 4) / 4
     else:
-        raise Exception('xsection not compatible')
+        raise Exception(error_msg_xsection)
     
 print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
 print( beam_deflection(F = 113.2, x = 2.3, material = 'wood', xsection = {'type': 'circle', 'r': 3.2}, a = 5.0, L = 10.0, support_type='cantilever') )
 print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
+
+def beam_shear_force(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
+    if support_type == 'cantilever':
+        if 0.0 <= x < a:
+            return F
+        elif a <= x <= L:
+            return 0
+        else:
+            raise Exception(error_msg_a)
+    elif support_type == 'simply_supported':
+        pass
+    else:
+        raise Exception(error_msg_support_type)
