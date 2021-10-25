@@ -47,19 +47,52 @@ def calc_I(xsection = None):
     else:
         raise Exception(error_msg_xsection)
     
-print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
-print( beam_deflection(F = 113.2, x = 2.3, material = 'wood', xsection = {'type': 'circle', 'r': 3.2}, a = 5.0, L = 10.0, support_type='cantilever') )
-print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
+# print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
+# print( beam_deflection(F = 113.2, x = 2.3, material = 'wood', xsection = {'type': 'circle', 'r': 3.2}, a = 5.0, L = 10.0, support_type='cantilever') )
+# print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
 
-def beam_shear_force(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
+def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None):
     if support_type == 'cantilever':
-        if 0.0 <= x < a:
+        if 0.0 <= x < L:
             return F
-        elif a <= x <= L:
-            return 0
         else:
             raise Exception(error_msg_a)
     elif support_type == 'simply_supported':
-        pass
+        b = L - a
+        if 0.0 <= x < a:
+            return (F * b) / L
+        elif a <= x <= L:
+            return (-F * a) / L
+        else:
+            raise Exception(error_msg_a)
     else:
         raise Exception(error_msg_support_type)
+    
+# print( beam_shear_force(F = 113.2, x = 2.3, a = 3.2, L = 10.0, support_type='cantilever') )
+# print( beam_shear_force(F = 113.2, x = 7.2, a = 7.1, L = 10.0, support_type='cantilever') )
+# print( beam_shear_force(F = 113.2, x = 1.3, a = 7.6, L = 10.0, support_type='simply_supported') )
+# print( beam_shear_force(F = 113.2, x = 8.1, a = 7.6, L = 10.0, support_type='simply_supported') )
+    
+def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = None):
+    if support_type == 'cantilever':
+        return -F * (L - x)
+    elif support_type == 'simply_supported':
+        b = L - a
+        M_max = (F * a * b) / L
+        if 0.0 <= x < a:
+            return (x / a) * M_max
+        elif a <= x <= L:
+            return M_max * ( (-(x - a) / b) + 1)
+        else:
+            raise Exception(error_msg_a)
+    else:
+        raise Exception(error_msg_support_type)
+
+# print( beam_bending_moment(F = 113.2, x = 0.0, a = 3.2, L = 10.0, support_type='cantilever') )
+# print( beam_bending_moment(F = 113.2, x = 5.0, a = 3.2, L = 10.0, support_type='cantilever') )
+# print( beam_bending_moment(F = 113.2, x = 10.0, a = 3.2, L = 10.0, support_type='cantilever') )
+# print( beam_bending_moment(F = 113.2, x = 0.0, a = 4.3, L = 10.0, support_type='simply_supported') )
+# print( beam_bending_moment(F = 113.2, x = 2.0, a = 4.3, L = 10.0, support_type='simply_supported') )
+# print( beam_bending_moment(F = 113.2, x = 4.3, a = 4.3, L = 10.0, support_type='simply_supported') )
+# print( beam_bending_moment(F = 113.2, x = 5.7, a = 4.3, L = 10.0, support_type='simply_supported') )
+# print( beam_bending_moment(F = 113.2, x = 10.0, a = 4.3, L = 10.0, support_type='simply_supported') )
