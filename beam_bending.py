@@ -253,18 +253,26 @@ app.layout = html.Div([
 )
 def update_cross_section_container(value):
     print('You have selected "{}"'.format(value))
+    
+    rectangular = None
+    circle = None
+    
     if value == 'rectangular':
-        return [
-            html.Br(),
-            html.Label('B'),
-            dcc.Input(id="b", type="number", step=0.1, value=5.0),
-            html.Label('H'),
-            dcc.Input(id="h", type="number", step=0.1, value=10.0, )
-        ]
+        rectangular = {'display': 'block'}
+        circle = {'display': 'none'}
+    else:    
+        rectangular = {'display': 'none'}
+        circle = {'display': 'block'}
+    
     return [
-            html.Br(),
-            html.Label('Radius'),
-            dcc.Input(id="r", type="number", value=5.0)
+            html.Br(style=rectangular),
+            html.Label('B', style=rectangular),
+            dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
+            html.Label('H', style=rectangular),
+            dcc.Input(id="h", type="number", step=0.1, value=10.0, style=rectangular),
+            html.Br(style=circle),
+            html.Label('Radius', style=circle),
+            dcc.Input(id="r", type="number", value=5.0, style=circle),
         ]
 
 @app.callback(
@@ -275,8 +283,9 @@ def update_cross_section_container(value):
     Input('xsection', 'value'),
     Input('force-location', 'value'),
     Input('force-mag', 'value'),
+    Input('b', 'value'),
 )
-def update_graph(mt, st, bl, xs, fl, fm):
+def update_graph(mt, st, bl, xs, fl, fm, b):
     print('------')
     print('You have selected Material Type : "{}"'.format(mt))
     print('You have selected Support Type : "{}"'.format(st))
@@ -284,6 +293,7 @@ def update_graph(mt, st, bl, xs, fl, fm):
     print('You have selected XSection : "{}"'.format(xs))
     print('You have selected Force Location : "{}"'.format(fl))
     print('You have selected Force Mag : "{}"'.format(fm))
+    print('You have selected b : "{}"'.format(b))
     print('------')
     #filtered_df = df[df.year == selected_year]
 
