@@ -1,4 +1,12 @@
 import numpy as np
+import pandas as pd
+import plotly.express as px
+
+
+import dash
+from dash import html
+from dash import dcc
+from dash.dependencies import Input, Output
 
 # Young's modulus constant in Pascal
 E = {
@@ -118,3 +126,172 @@ def calc_c(xsection = None):
     
 def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
+
+
+
+#
+# Populate data frame using above calculations for each discrete x value
+#
+def get_data():
+    return pd.DataFrame({
+        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
+        "Amount": [4, 1, 2, 2, 4, 5],
+        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
+    })
+
+values = get_data()
+
+fig = px.bar(values, x="Fruit", y="Amount", color="City", barmode="group")
+
+app = dash.Dash(__name__)
+app.layout = html.Div([
+    #
+    # Header
+    #
+    html.H1(
+        children="Beam Bending Visualization",
+        style={
+            'textAlign': 'center',
+        }),
+    #
+    # Inputs
+    #
+    html.H2("Input Parameters"),
+    html.Div([
+        html.Div([
+            html.Label('Material'),
+            dcc.RadioItems(
+                id='material-type',
+                options=[
+                    {'label': 'Aluminium', 'value': 'AL'},
+                    {'label': 'Wood', 'value': 'WD'},
+                    {'label': 'Titanium', 'value': 'TT'},
+                    {'label': 'Steel', 'value': 'ST'}
+                ],
+                labelStyle={'display': 'block'},
+                value='AL'
+            ),
+        ], style={'width': '10%'}),
+        html.Div([
+            html.Label('Support Type'),
+            dcc.RadioItems(
+                id='support-type',
+                options=[
+                    {'label': 'Simply Supported', 'value': 'S'},
+                    {'label': 'Cantiliver', 'value': 'C'},
+                ],
+                labelStyle={'display': 'block'},
+                value='S'
+            ),
+            html.Div(id='dd-output-container'),
+        ], style={'width': '10%'}),
+        html.Div([
+            html.Label('Beam Length'),
+            dcc.Input(id="beam-length", type="number", placeholder="10"),
+            html.Label('Beam Cross Section'),
+            dcc.Dropdown(
+                id='xsection',
+                options=[
+                    {'label': 'Rectangular', 'value': 'R'},
+                    {'label': 'Circle', 'value': 'C'}
+                ],
+                value='R'
+            ),
+            html.Div(id='xsection-container'),
+        ], style={'paddingRight': 40, 'width': '10%'}),
+        html.Div([
+            html.Label('Force Magnitude'),
+            dcc.Slider(
+                id='force-mag',
+                min=1,
+                max=100,
+                marks={
+                    1: {'label': '1N', 'style': {'color': '#77b0b1'}},
+                    100: {'label': '100N', 'style': {'color': '#f50'}}},
+                tooltip={"placement": "bottom", "always_visible": True},
+                value=50,
+            ),
+            html.Br(),
+            html.Label('Force Location'),
+            dcc.Slider(
+                id='force-location', 
+                min=1,
+                max=10,
+                marks={
+                    1: {'label': '1m', 'style': {'color': '#77b0b1'}},
+                    10: {'label': '10m', 'style': {'color': '#f50'}}},
+                tooltip={"placement": "bottom", "always_visible": True},
+                value=10,
+            )
+        ], style={'width': '20%'})
+    ], style={'display': 'flex', 'flex-direction': 'row'}),
+    #
+    # Visualization
+    #
+    html.H2("Visualization"),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='graph',
+                figure=fig
+            )
+        ], style={'flex': 1})
+    ])
+])
+
+@app.callback(
+    Output('xsection-container', 'children'),
+    Input('xsection', 'value')
+)
+def update_cross_section_container(value):
+    print('You have selected "{}"'.format(value))
+    if value == 'R':
+        return [
+            html.Br(),
+            html.Label('B'),
+            dcc.Input(id="b", type="number", placeholder="5"),
+            html.Label('H'),
+            dcc.Input(id="h", type="number", placeholder="10", )
+        ]
+    return [
+            html.Br(),
+            html.Label('Radius'),
+            dcc.Input(id="r", type="number", placeholder="5")
+        ]
+
+@app.callback(
+    Output('graph', 'figure'),
+    Input('material-type', 'value'),
+    Input('support-type', 'value'),
+    Input('beam-length', 'placeholder'),
+    Input('xsection', 'value'),
+    Input('force-location', 'value'),
+    Input('force-mag', 'value'),
+)
+def update_graph(mt, st, bl, xs, fl, fm):
+    print('You have selected Material Type : "{}"'.format(mt))
+    print('You have selected Support Type : "{}"'.format(st))
+    print('You have selected Beam Length : "{}"'.format(bl))
+    print('You have selected XSection : "{}"'.format(xs))
+    print('You have selected Force Location : "{}"'.format(fl))
+    print('You have selected Force Mag : "{}"'.format(fm))
+    #filtered_df = df[df.year == selected_year]
+
+    #fig = px.scatter(filtered_df, x="gdpPercap", y="lifeExp",
+    #                 size="pop", color="continent", hover_name="country",
+    #                 log_x=True, size_max=55)
+
+    #fig.update_layout(transition_duration=500)
+
+    values = pd.DataFrame({
+        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
+        "Amount": [10, 1, 2, 2, 4, 5],
+        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
+    })
+
+    fig = px.bar(values, x="Fruit", y="Amount", color="City", barmode="group")
+    fig.update_layout(transition_duration=500)
+    return fig
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
