@@ -28,6 +28,10 @@ error_msg_xsection = 'Invalid xsection'
 # support_type: type of beam support. expected value: 'cantilever', 'simply_supported'
 
 def beam_deflection(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
+    F = float(F)
+    x = float(x)
+    a = float(a)
+    L = float(L)
     if support_type == 'cantilever':
         if 0.0 <= x < a:
             return (-F * x ** 2 * (3 * a - x)) / (6 * E[material] * calc_I(xsection))
@@ -125,6 +129,10 @@ def calc_c(xsection = None):
         raise Exception(error_msg_xsection)
     
 def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+    F = float(F)
+    x = float(x)
+    a = float(a)
+    L = float(L)
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
 
 
@@ -163,13 +171,13 @@ app.layout = html.Div([
             dcc.RadioItems(
                 id='material-type',
                 options=[
-                    {'label': 'Aluminium', 'value': 'AL'},
-                    {'label': 'Wood', 'value': 'WD'},
-                    {'label': 'Titanium', 'value': 'TT'},
-                    {'label': 'Steel', 'value': 'ST'}
+                    {'label': 'Aluminium', 'value': 'aluminum'},
+                    {'label': 'Wood', 'value': 'wood'},
+                    {'label': 'Titanium', 'value': 'titanium'},
+                    {'label': 'Steel', 'value': 'steel'}
                 ],
                 labelStyle={'display': 'block'},
-                value='AL'
+                value='aluminum'
             ),
         ], style={'width': '10%'}),
         html.Div([
@@ -177,25 +185,25 @@ app.layout = html.Div([
             dcc.RadioItems(
                 id='support-type',
                 options=[
-                    {'label': 'Simply Supported', 'value': 'S'},
-                    {'label': 'Cantiliver', 'value': 'C'},
+                    {'label': 'Simply Supported', 'value': 'simply_supported'},
+                    {'label': 'Cantiliver', 'value': 'cantiliver'},
                 ],
                 labelStyle={'display': 'block'},
-                value='S'
+                value='simply_supported'
             ),
             html.Div(id='dd-output-container'),
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length'),
-            dcc.Input(id="beam-length", type="number", placeholder="10"),
+            dcc.Input(id="beam-length", type="number", step=0.1, value=5.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
                 options=[
-                    {'label': 'Rectangular', 'value': 'R'},
-                    {'label': 'Circle', 'value': 'C'}
+                    {'label': 'Rectangular', 'value': 'rectangular'},
+                    {'label': 'Circle', 'value': 'circle'}
                 ],
-                value='R'
+                value='rectangular'
             ),
             html.Div(id='xsection-container'),
         ], style={'paddingRight': 40, 'width': '10%'}),
@@ -245,36 +253,38 @@ app.layout = html.Div([
 )
 def update_cross_section_container(value):
     print('You have selected "{}"'.format(value))
-    if value == 'R':
+    if value == 'rectangular':
         return [
             html.Br(),
             html.Label('B'),
-            dcc.Input(id="b", type="number", placeholder="5"),
+            dcc.Input(id="b", type="number", step=0.1, value=5.0),
             html.Label('H'),
-            dcc.Input(id="h", type="number", placeholder="10", )
+            dcc.Input(id="h", type="number", step=0.1, value=10.0, )
         ]
     return [
             html.Br(),
             html.Label('Radius'),
-            dcc.Input(id="r", type="number", placeholder="5")
+            dcc.Input(id="r", type="number", value=5.0)
         ]
 
 @app.callback(
     Output('graph', 'figure'),
     Input('material-type', 'value'),
     Input('support-type', 'value'),
-    Input('beam-length', 'placeholder'),
+    Input('beam-length', 'value'),
     Input('xsection', 'value'),
     Input('force-location', 'value'),
     Input('force-mag', 'value'),
 )
 def update_graph(mt, st, bl, xs, fl, fm):
+    print('------')
     print('You have selected Material Type : "{}"'.format(mt))
     print('You have selected Support Type : "{}"'.format(st))
     print('You have selected Beam Length : "{}"'.format(bl))
     print('You have selected XSection : "{}"'.format(xs))
     print('You have selected Force Location : "{}"'.format(fl))
     print('You have selected Force Mag : "{}"'.format(fm))
+    print('------')
     #filtered_df = df[df.year == selected_year]
 
     #fig = px.scatter(filtered_df, x="gdpPercap", y="lifeExp",
@@ -291,6 +301,15 @@ def update_graph(mt, st, bl, xs, fl, fm):
 
     fig = px.bar(values, x="Fruit", y="Amount", color="City", barmode="group")
     fig.update_layout(transition_duration=500)
+    
+    N = 100
+    x = np.linspace(start = 0.0, stop = float(bl), num = N)
+    y = []
+    # for i in x:
+    #     y.append(beam_deflection(F = fm, x = i, material = mt, xsection = xs, a = fl, L = bl, support_type = st))
+    
+    # print(y)
+        
     return fig
 
 if __name__ == '__main__':
