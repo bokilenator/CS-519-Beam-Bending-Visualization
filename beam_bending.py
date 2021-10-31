@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import plotly.express as px
-
+import plotly.graph_objects as go
 
 import dash
 from dash import html
@@ -136,20 +136,9 @@ def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None,
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
 
 
-
-#
-# Populate data frame using above calculations for each discrete x value
-#
-def get_data():
-    return pd.DataFrame({
-        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-        "Amount": [4, 1, 2, 2, 4, 5],
-        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-    })
-
-values = get_data()
-
-fig = px.bar(values, x="Fruit", y="Amount", color="City", barmode="group")
+#######################################################################
+# Application
+#######################################################################
 
 app = dash.Dash(__name__)
 app.layout = html.Div([
@@ -171,7 +160,7 @@ app.layout = html.Div([
             dcc.RadioItems(
                 id='material-type',
                 options=[
-                    {'label': 'Aluminium', 'value': 'aluminum'},
+                    {'label': 'Aluminum', 'value': 'aluminum'},
                     {'label': 'Wood', 'value': 'wood'},
                     {'label': 'Titanium', 'value': 'titanium'},
                     {'label': 'Steel', 'value': 'steel'}
@@ -186,16 +175,15 @@ app.layout = html.Div([
                 id='support-type',
                 options=[
                     {'label': 'Simply Supported', 'value': 'simply_supported'},
-                    {'label': 'Cantiliver', 'value': 'cantiliver'},
+                    {'label': 'Cantilever', 'value': 'cantilever'},
                 ],
                 labelStyle={'display': 'block'},
                 value='simply_supported'
             ),
-            html.Div(id='dd-output-container'),
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length'),
-            dcc.Input(id="beam-length", type="number", step=0.1, value=5.0),
+            dcc.Input(id="beam-length", type="number", step=0.1, value=10.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
@@ -205,7 +193,12 @@ app.layout = html.Div([
                 ],
                 value='rectangular'
             ),
-            html.Div(id='xsection-container'),
+            html.Div(id='xsection-container', children=
+                [
+                dcc.Input(id="b", type="number", step=0.1, value=5.0),
+                dcc.Input(id="h", type="number", step=0.1, value=10.0),
+                dcc.Input(id="r", type="number", value=5.0)
+                ]),
         ], style={'paddingRight': 40, 'width': '10%'}),
         html.Div([
             html.Label('Force Magnitude'),
@@ -224,6 +217,7 @@ app.layout = html.Div([
             dcc.Slider(
                 id='force-location', 
                 min=1,
+                step=0.1,
                 max=10,
                 marks={
                     1: {'label': '1m', 'style': {'color': '#77b0b1'}},
@@ -240,12 +234,27 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             dcc.Graph(
-                id='graph',
-                figure=fig
+                id='graph'
             )
         ], style={'flex': 1})
     ])
 ])
+
+@app.callback(
+    Output('force-location', 'max'),
+    Output('force-location', 'value'),
+    Output('force-location', 'marks'),
+    Input('beam-length', 'value')
+)
+def update_force_location_range(bl):
+    end_label = str(float(bl) - 0.1) + 'm'
+    marks={
+        1: {'label': '1m', 'style': {'color': '#77b0b1'}},
+        float(bl) - 0.1: {'label': end_label, 'style': {'color': '#f50'}}}
+    loc = float(bl) - 0.1
+    max = float(bl) - 0.1
+    #print(max, loc, marks)
+    return [ max, loc, marks ]
 
 @app.callback(
     Output('xsection-container', 'children'),
@@ -284,8 +293,10 @@ def update_cross_section_container(value):
     Input('force-location', 'value'),
     Input('force-mag', 'value'),
     Input('b', 'value'),
+    Input('h', 'value'),
+    Input('r', 'value')
 )
-def update_graph(mt, st, bl, xs, fl, fm, b):
+def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     print('------')
     print('You have selected Material Type : "{}"'.format(mt))
     print('You have selected Support Type : "{}"'.format(st))
@@ -294,32 +305,67 @@ def update_graph(mt, st, bl, xs, fl, fm, b):
     print('You have selected Force Location : "{}"'.format(fl))
     print('You have selected Force Mag : "{}"'.format(fm))
     print('You have selected b : "{}"'.format(b))
+    print('You have selected h : "{}"'.format(h))
+    print('You have selected r : "{}"'.format(r))
     print('------')
-    #filtered_df = df[df.year == selected_year]
-
-    #fig = px.scatter(filtered_df, x="gdpPercap", y="lifeExp",
-    #                 size="pop", color="continent", hover_name="country",
-    #                 log_x=True, size_max=55)
-
-    #fig.update_layout(transition_duration=500)
-
-    values = pd.DataFrame({
-        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-        "Amount": [10, 1, 2, 2, 4, 5],
-        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-    })
-
-    fig = px.bar(values, x="Fruit", y="Amount", color="City", barmode="group")
-    fig.update_layout(transition_duration=500)
     
+    xsection = {}
+    if xs == 'rectangular':
+        xsection['type'] = 'rectangular'
+        xsection['b'] = float(b)
+        xsection['h'] = float(h)
+    else:
+        xsection['type'] = 'circle'
+        xsection['r'] = float(r)
+
+    #print(xsection)
+
     N = 100
-    x = np.linspace(start = 0.0, stop = float(bl), num = N)
-    y = []
-    # for i in x:
-    #     y.append(beam_deflection(F = fm, x = i, material = mt, xsection = xs, a = fl, L = bl, support_type = st))
+    X = np.linspace(start = 0.0, stop = float(bl), num = N)
+    Y = []
+    for i in X:
+        Y.append(beam_deflection(F = float(fm), x = float(i), material = mt, xsection = xsection, a = float(fl), L = float(bl), support_type = st))
     
-    # print(y)
-        
+    #print(Y)
+
+    span = float(bl)
+    layout = go.Layout(
+        title = {
+            'text': 'Deflection',
+            'y': 0.85,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor':'top'},
+        titlefont = dict(size=15),
+        yaxis = dict(
+            title='Deflection'
+        ),
+        xaxis = dict(
+            title='Distance (m)',
+            range=[-1, span+1]
+        ),
+        showlegend=False
+    )
+
+    line = go.Scatter(
+        x = X,
+        y = Y,
+        mode = 'lines',
+        name = 'Deflection',
+        line_color = 'orange',
+        fill = 'tonexty',
+        fillcolor = 'rgba(255, 255, 0, 0.1)'
+    )
+
+    axis = go.Scatter(
+        x = [0, span],
+        y = [0, 0],
+        mode = 'lines',
+        line_color = 'black'
+    )
+
+    fig = go.Figure(data=[line, axis], layout = layout)
+    fig.update_layout(transition_duration=50)
     return fig
 
 if __name__ == '__main__':
