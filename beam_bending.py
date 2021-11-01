@@ -274,10 +274,11 @@ def update_cross_section_container(value):
     elif value == 'circle':    
         rectangular = {'display': 'none'}
         circle = {'display': 'block'}
+        imageURL = 'https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/circle_xsection.png?raw=true'
     
     return [
             html.Br(style=rectangular),
-            html.Img(src=imageURL, style=rectangular),
+            html.Img(src=imageURL),
             html.Label('b', style=rectangular),
             dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
             html.Label('h', style=rectangular),
