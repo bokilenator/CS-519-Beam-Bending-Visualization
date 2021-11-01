@@ -270,11 +270,11 @@ def update_cross_section_container(value):
     if value == 'rectangular':
         rectangular = {'display': 'block'}
         circle = {'display': 'none'}
-        imageURL = 'https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/rect_xsection.png?raw=true'
+        imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/rect_xsection.png'
     elif value == 'circle':    
         rectangular = {'display': 'none'}
         circle = {'display': 'block'}
-        imageURL = 'https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/circle_xsection.png?raw=true'
+        imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/circle_xsection.png'
     
     return [
             html.Br(style=rectangular),
