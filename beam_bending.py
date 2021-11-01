@@ -276,7 +276,7 @@ def update_cross_section_container(value):
     
     return [
             html.Br(style=rectangular),
-            html.Img(src='rect_xsection.png'),
+            html.Img(src='https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/rect_xsection.png?raw=true'),
             html.Label('b', style=rectangular),
             dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
             html.Label('h', style=rectangular),
