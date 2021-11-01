@@ -213,7 +213,7 @@ app.layout = html.Div([
                 value=50,
             ),
             html.Br(),
-            html.Label('Force Location'),
+            html.Label('Force Location (x)'),
             dcc.Slider(
                 id='force-location', 
                 min=1,
