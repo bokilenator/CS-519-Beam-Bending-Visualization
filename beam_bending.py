@@ -263,19 +263,21 @@ def update_force_location_range(bl):
 def update_cross_section_container(value):
     print('You have selected "{}"'.format(value))
     
-    rectangular = None
-    circle = None
+    rectangular = {'display': 'none'}
+    circle = {'display': 'none'}
+    imageURL = ''
     
     if value == 'rectangular':
         rectangular = {'display': 'block'}
         circle = {'display': 'none'}
-    else:    
+        imageURL = 'https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/rect_xsection.png?raw=true'
+    elif value == 'circle':    
         rectangular = {'display': 'none'}
         circle = {'display': 'block'}
     
     return [
             html.Br(style=rectangular),
-            html.Img(src='https://github.com/bokilenator/CS-519-Beam-Bending-Visualization/blob/main/rect_xsection.png?raw=true', style=rectangular),
+            html.Img(src=imageURL, style=rectangular),
             html.Label('b', style=rectangular),
             dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
             html.Label('h', style=rectangular),
