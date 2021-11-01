@@ -195,6 +195,7 @@ app.layout = html.Div([
             ),
             html.Div(id='xsection-container', children=
                 [
+                html.Img(src='https://www.engineeringtoolbox.com/docs/documents/1328/geometric_sections_rectangle-Model.png'),
                 dcc.Input(id="b", type="number", step=0.1, value=5.0),
                 dcc.Input(id="h", type="number", step=0.1, value=10.0),
                 dcc.Input(id="r", type="number", value=5.0)
@@ -275,9 +276,10 @@ def update_cross_section_container(value):
     
     return [
             html.Br(style=rectangular),
-            html.Label('B', style=rectangular),
+            html.Img(src='rect_xsection.png'),
+            html.Label('b', style=rectangular),
             dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
-            html.Label('H', style=rectangular),
+            html.Label('h', style=rectangular),
             dcc.Input(id="h", type="number", step=0.1, value=10.0, style=rectangular),
             html.Br(style=circle),
             html.Label('Radius', style=circle),
