@@ -182,7 +182,7 @@ app.layout = html.Div([
             ),
         ], style={'width': '10%'}),
         html.Div([
-            html.Label('Beam Length'),
+            html.Label('Beam Length (m)'),
             dcc.Input(id="beam-length", type="number", step=0.1, value=10.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
@@ -234,7 +234,7 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             dcc.Graph(
-                id='graph'
+                id='deflection_graph'
             )
         ], style={'flex': 1})
     ])
@@ -289,7 +289,7 @@ def update_cross_section_container(value):
         ]
 
 @app.callback(
-    Output('graph', 'figure'),
+    Output('deflection_graph', 'figure'),
     Input('material-type', 'value'),
     Input('support-type', 'value'),
     Input('beam-length', 'value'),
@@ -330,7 +330,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     for i in X:
         Y.append(beam_deflection(F = float(fm), x = float(i), material = mt, xsection = xsection, a = float(fl), L = float(bl), support_type = st))
     
-    #print(Y)
+    # print(Y)
 
     span = float(bl)
     layout = go.Layout(
@@ -342,7 +342,9 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             'yanchor':'top'},
         titlefont = dict(size=15),
         yaxis = dict(
-            title='Deflection'
+            title='Deflection (m)',
+            showexponent = 'all',
+            exponentformat = 'e'
         ),
         xaxis = dict(
             title='Distance (m)',
@@ -368,9 +370,9 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         line_color = 'black'
     )
 
-    fig = go.Figure(data=[line, axis], layout = layout)
-    fig.update_layout(transition_duration=50)
-    return fig
+    figure = go.Figure(data=[line, axis], layout = layout)
+    figure.update_layout(transition_duration=50)
+    return figure
 
 if __name__ == '__main__':
     app.run_server(debug=True)
