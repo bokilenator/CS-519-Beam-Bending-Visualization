@@ -237,7 +237,21 @@ app.layout = html.Div([
                 id='deflection_graph'
             )
         ], style={'flex': 1})
-    ])
+    ]),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='shear_stress_graph'
+            )
+        ], style={'flex': 1})
+    ]),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='bending_stress_graph'
+            )
+        ], style={'flex': 1})
+    ]),
 ])
 
 @app.callback(
@@ -290,6 +304,8 @@ def update_cross_section_container(value):
 
 @app.callback(
     Output('deflection_graph', 'figure'),
+    Output('shear_stress_graph', 'figure'),
+    Output('bending_stress_graph', 'figure'),
     Input('material-type', 'value'),
     Input('support-type', 'value'),
     Input('beam-length', 'value'),
@@ -327,13 +343,17 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     N = 100
     X = np.linspace(start = 0.0, stop = float(bl), num = N)
     Y = []
+    shear_stress = []
+    bending_stress = []
     for i in X:
         Y.append(beam_deflection(F = float(fm), x = float(i), material = mt, xsection = xsection, a = float(fl), L = float(bl), support_type = st))
+        shear_stress.append(beam_shear_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
+        bending_stress.append(beam_bending_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
     
     # print(Y)
 
     span = float(bl)
-    layout = go.Layout(
+    layout_deflection = go.Layout(
         title = {
             'text': 'Deflection',
             'y': 0.85,
@@ -352,12 +372,72 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         showlegend=False
     )
+    
+    layout_shear_stress = go.Layout(
+        title = {
+            'text': 'Shear Stress',
+            'y': 0.85,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor':'top'},
+        titlefont = dict(size=15),
+        yaxis = dict(
+            title='Shear Stress (Pascal)',
+            showexponent = 'all',
+            exponentformat = 'e'
+        ),
+        xaxis = dict(
+            title='Distance (m)',
+            range=[-1, span+1]
+        ),
+        showlegend=False
+    )
+    
+    layout_bending_stress = go.Layout(
+        title = {
+            'text': 'Bending Stress',
+            'y': 0.85,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor':'top'},
+        titlefont = dict(size=15),
+        yaxis = dict(
+            title='Bending Stress (Pascal)',
+            showexponent = 'all',
+            exponentformat = 'e'
+        ),
+        xaxis = dict(
+            title='Distance (m)',
+            range=[-1, span+1]
+        ),
+        showlegend=False
+    )
 
-    line = go.Scatter(
+    line_deflection = go.Scatter(
         x = X,
         y = Y,
         mode = 'lines',
         name = 'Deflection',
+        line_color = 'orange',
+        fill = 'tonexty',
+        fillcolor = 'rgba(255, 255, 0, 0.1)'
+    )
+    
+    line_shear_stress = go.Scatter(
+        x = X,
+        y = shear_stress,
+        mode = 'lines',
+        name = 'Shear Stress',
+        line_color = 'orange',
+        fill = 'tonexty',
+        fillcolor = 'rgba(255, 255, 0, 0.1)'
+    )
+    
+    line_bending_stress = go.Scatter(
+        x = X,
+        y = bending_stress,
+        mode = 'lines',
+        name = 'Bending Stress',
         line_color = 'orange',
         fill = 'tonexty',
         fillcolor = 'rgba(255, 255, 0, 0.1)'
@@ -370,9 +450,13 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         line_color = 'black'
     )
 
-    figure = go.Figure(data=[line, axis], layout = layout)
+    figure = go.Figure(data=[line_deflection, axis], layout = layout_deflection)
+    shear = go.Figure(data=[line_shear_stress], layout = layout_shear_stress)
+    bending = go.Figure(data=[line_bending_stress], layout = layout_bending_stress)
+    
     figure.update_layout(transition_duration=50)
-    return figure
+    
+    return figure, shear, bending
 
 if __name__ == '__main__':
     app.run_server(debug=True)
