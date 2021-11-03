@@ -15,7 +15,7 @@ E = {
     'titanium': 116.0 * 10**9,
     'steel': 200.0 * 10**9,}
 
-error_msg_a = 'Is a between 0 and L?'
+error_msg_a = 'Is a between 0 and L? a: '
 error_msg_support_type = 'Invalid support_type'
 error_msg_xsection = 'Invalid xsection'
 
@@ -28,17 +28,13 @@ error_msg_xsection = 'Invalid xsection'
 # support_type: type of beam support. expected value: 'cantilever', 'simply_supported'
 
 def beam_deflection(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
-    F = float(F)
-    x = float(x)
-    a = float(a)
-    L = float(L)
     if support_type == 'cantilever':
         if 0.0 <= x < a:
             return (-F * x ** 2 * (3 * a - x)) / (6 * E[material] * calc_I(xsection))
         elif a <= x <= L:
             return (-F * a ** 2 * (3 * x - a)) / (6 * E[material] * calc_I(xsection))
         else:
-            raise Exception(error_msg_a)
+            raise Exception(error_msg_a + str(a))
     elif support_type == 'simply_supported':
         b = (L - a)
         if 0.0 <= x < a:
@@ -46,7 +42,7 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         elif a <= x <= L:
             return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
         else:
-            raise Exception(error_msg_a)
+            raise Exception(error_msg_a + str(a))
     else:
         raise Exception(error_msg_support_type)
     
@@ -65,10 +61,10 @@ def calc_I(xsection = None):
 
 def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None):
     if support_type == 'cantilever':
-        if 0.0 <= x < L:
+        if 0.0 <= x <= L:
             return F
         else:
-            raise Exception(error_msg_a)
+            raise Exception(error_msg_a + str(a) + str(L))
     elif support_type == 'simply_supported':
         b = L - a
         if 0.0 <= x < a:
@@ -76,7 +72,7 @@ def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None
         elif a <= x <= L:
             return (-F * a) / L
         else:
-            raise Exception(error_msg_a)
+            raise Exception(error_msg_a + str(a))
     else:
         raise Exception(error_msg_support_type)
     
@@ -96,7 +92,7 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
         elif a <= x <= L:
             return M_max * ( (-(x - a) / b) + 1)
         else:
-            raise Exception(error_msg_a)
+            raise Exception(error_msg_a + str(a))
     else:
         raise Exception(error_msg_support_type)
 
@@ -129,10 +125,6 @@ def calc_c(xsection = None):
         raise Exception(error_msg_xsection)
     
 def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
-    F = float(F)
-    x = float(x)
-    a = float(a)
-    L = float(L)
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
 
 
