@@ -267,7 +267,7 @@ def update_force_location_range(bl):
     marks={
         1: {'label': '1m', 'style': {'color': '#77b0b1'}},
         float(bl) - 0.1: {'label': end_label, 'style': {'color': '#f50'}}}
-    loc = float(bl) - 0.1
+    loc = float(bl) / 2
     max = float(bl) - 0.1
     #print(max, loc, marks)
     return [ max, loc, marks ]
