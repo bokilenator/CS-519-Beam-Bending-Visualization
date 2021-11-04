@@ -67,9 +67,9 @@ def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None
             raise Exception(error_msg_a + str(a) + str(L))
     elif support_type == 'simply_supported':
         b = L - a
-        if 0.0 <= x < a:
+        if 0.0 <= x <= a:
             return (F * b) / L
-        elif a <= x <= L:
+        elif a < x <= L:
             return (-F * a) / L
         else:
             raise Exception(error_msg_a + str(a))
@@ -87,9 +87,9 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
     elif support_type == 'simply_supported':
         b = L - a
         M_max = (F * a * b) / L
-        if 0.0 <= x < a:
+        if 0.0 <= x <= a:
             return (x / a) * M_max
-        elif a <= x <= L:
+        elif a < x <= L:
             return M_max * ( (-(x - a) / b) + 1)
         else:
             raise Exception(error_msg_a + str(a))
@@ -126,6 +126,9 @@ def calc_c(xsection = None):
     
 def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
+
+def von_mises_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+    return (beam_bending_stress(F, x, xsection, a, L, support_type) ** 2 + 3 * beam_shear_stress(F, x, xsection, a, L, support_type) ** 2) ** 0.5
 
 
 #######################################################################
@@ -175,7 +178,7 @@ app.layout = html.Div([
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length (m)'),
-            dcc.Input(id="beam-length", type="number", step=0.1, value=10.0),
+            dcc.Input(id="beam-length", type="number", step=0.1, value=100.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
@@ -244,6 +247,13 @@ app.layout = html.Div([
             )
         ], style={'flex': 1})
     ]),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='von_mises_graph'
+            )
+        ], style={'flex': 1})
+    ]),
 ])
 
 @app.callback(
@@ -298,6 +308,7 @@ def update_cross_section_container(value):
     Output('deflection_graph', 'figure'),
     Output('shear_stress_graph', 'figure'),
     Output('bending_stress_graph', 'figure'),
+    Output('von_mises_graph', 'figure'),
     Input('material-type', 'value'),
     Input('support-type', 'value'),
     Input('beam-length', 'value'),
@@ -332,15 +343,20 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
 
     #print(xsection)
 
-    N = 100
-    X = np.linspace(start = 0.0, stop = float(bl), num = N)
+    N = 10000
+    step = 0.01
+    X = np.arange(start = 0.0, stop = float(bl) + step, step = step)
+    # X = np.linspace(start = 0.0, stop = float(bl), num = N)
+    X = np.sort(np.append(X, float(fl)))     ## make sure crictical point is in the array
     Y = []
     shear_stress = []
     bending_stress = []
+    vonmises_stress = []
     for i in X:
         Y.append(beam_deflection(F = float(fm), x = float(i), material = mt, xsection = xsection, a = float(fl), L = float(bl), support_type = st))
         shear_stress.append(beam_shear_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
         bending_stress.append(beam_bending_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
+        vonmises_stress.append(von_mises_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
     
     # print(Y)
 
@@ -404,6 +420,26 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         showlegend=False
     )
+    
+    layout_vonmises_stress = go.Layout(
+        title = {
+            'text': 'Von Mises Stress',
+            'y': 0.85,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor':'top'},
+        titlefont = dict(size=15),
+        yaxis = dict(
+            title='Von Mises Stress (Pascal)',
+            showexponent = 'all',
+            exponentformat = 'e'
+        ),
+        xaxis = dict(
+            title='Distance (m)',
+            range=[-1, span+1]
+        ),
+        showlegend=False
+    )
 
     line_deflection = go.Scatter(
         x = X,
@@ -434,6 +470,16 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         fill = 'tonexty',
         fillcolor = 'rgba(255, 255, 0, 0.1)'
     )
+    
+    line_vonmises_stress = go.Scatter(
+        x = X,
+        y = vonmises_stress,
+        mode = 'lines',
+        name = 'Von Mises Stress',
+        line_color = 'orange',
+        fill = 'tonexty',
+        fillcolor = 'rgba(255, 255, 0, 0.1)'
+    )
 
     axis = go.Scatter(
         x = [0, span],
@@ -445,10 +491,11 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     figure = go.Figure(data=[line_deflection, axis], layout = layout_deflection)
     shear = go.Figure(data=[line_shear_stress], layout = layout_shear_stress)
     bending = go.Figure(data=[line_bending_stress], layout = layout_bending_stress)
+    vonmises = go.Figure(data=[line_vonmises_stress], layout = layout_vonmises_stress)
     
     figure.update_layout(transition_duration=50)
     
-    return figure, shear, bending
+    return figure, shear, bending, vonmises
 
 if __name__ == '__main__':
     app.run_server(debug=True)
