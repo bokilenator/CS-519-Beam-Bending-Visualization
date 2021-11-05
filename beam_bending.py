@@ -28,6 +28,8 @@ error_msg_xsection = 'Invalid xsection'
 # support_type: type of beam support. expected value: 'cantilever', 'simply_supported'
 
 def beam_deflection(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
+    x = max(0, min(x, L))
+    
     if support_type == 'cantilever':
         if 0.0 <= x < a:
             return (-F * x ** 2 * (3 * a - x)) / (6 * E[material] * calc_I(xsection))
@@ -39,12 +41,13 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         b = (L - a)
         if b == 0:
             return 0.0
-        elif 0.0 <= x < a:
+        
+        if 0.0 <= x < a:
             return (-F * b * x * (L ** 2 - x ** 2 - (L - a) **2)) / (6 * L * E[material] * calc_I(xsection))
         elif a <= x <= L:
             return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
         else:
-            raise Exception(error_msg_a + str(a))
+            raise Exception(error_msg_a + f'a: {a} L: {L} x: {x}')
     else:
         raise Exception(error_msg_support_type)
     
@@ -62,6 +65,8 @@ def calc_I(xsection = None):
 # print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
 
 def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None):
+    x = max(0, min(x, L))
+    
     if support_type == 'cantilever':
         if 0.0 <= x <= L:
             return F
@@ -84,6 +89,8 @@ def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None
 # print( beam_shear_force(F = 113.2, x = 8.1, a = 7.6, L = 10.0, support_type='simply_supported') )
     
 def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = None):
+    x = max(0, min(x, L))
+    
     if support_type == 'cantilever':
         return -F * (L - x)
     elif support_type == 'simply_supported':
@@ -194,14 +201,14 @@ app.layout = html.Div([
             ),
             html.Div(id='xsection-container', children=
                 [
-                dcc.Input(id="b", type="number", step=0.1, value=0.1),
-                dcc.Input(id="h", type="number", step=0.1, value=0.1),
-                dcc.Input(id="r", type="number", value=0.1)
+                dcc.Input(id="b", type="text", step=0.1, value=0.1),
+                dcc.Input(id="h", type="text", step=0.1, value=0.1),
+                dcc.Input(id="r", type="text", value=0.1)
                 ]),
         ], style={'paddingRight': 40, 'width': '10%'}),
         html.Div([
             html.Label('Force Magnitude (N)'),
-            dcc.Input(id="force-mag", type="number", step=0.001, value=1000.0),
+            dcc.Input(id="force-mag", type="text", step=0.001, value=1000.0),
             # dcc.Slider(
             #     id='force-mag',
             #     min=1,
@@ -220,8 +227,7 @@ app.layout = html.Div([
                 step=0.001,
                 max=10,
                 marks={
-                    1: {'label': '1m', 'style': {'color': '#77b0b1'}},
-                    10: {'label': '10m', 'style': {'color': '#f50'}}},
+                    0: {'label': '0m', 'style': {'color': '#77b0b1'}}},
                 tooltip={"placement": "bottom", "always_visible": True},
                 value=10,
             )
@@ -264,18 +270,17 @@ app.layout = html.Div([
 @app.callback(
     Output('force-location', 'max'),
     Output('force-location', 'value'),
-    Output('force-location', 'marks'),
+    # Output('force-location', 'marks'),
     Input('beam-length', 'value')
 )
 def update_force_location_range(bl):
-    end_label = str(float(bl) - 0.1) + 'm'
-    marks={
-        1: {'label': '1m', 'style': {'color': '#77b0b1'}},
-        float(bl) - 0.1: {'label': end_label, 'style': {'color': '#f50'}}}
+    # marks={
+    #     0: {'label': '0m', 'style': {'color': '#77b0b1'}},
+    #     str(bl): {'label': f'{bl}m', 'style': {'color': '#f50'}}}
     loc = float(bl) / 2
     max = float(bl)
     #print(max, loc, marks)
-    return [ max, loc, marks ]
+    return [ max, loc ]
 
 @app.callback(
     Output('xsection-container', 'children'),
@@ -301,12 +306,12 @@ def update_cross_section_container(value):
             html.Br(style=rectangular),
             html.Img(src=imageURL),
             html.Label('b (m)', style=rectangular),
-            dcc.Input(id="b", type="number", step=0.001, value=0.1, style=rectangular),
+            dcc.Input(id="b", type="text", step=0.001, value=0.1, style=rectangular),
             html.Label('h (m)', style=rectangular),
-            dcc.Input(id="h", type="number", step=0.001, value=0.1, style=rectangular),
+            dcc.Input(id="h", type="text", step=0.001, value=0.1, style=rectangular),
             html.Br(style=circle),
             html.Label('Radius (m)', style=circle),
-            dcc.Input(id="r", type="number", step=0.001, value=0.1, style=circle),
+            dcc.Input(id="r", type="text", step=0.001, value=0.1, style=circle),
         ]
 
 @app.callback(
