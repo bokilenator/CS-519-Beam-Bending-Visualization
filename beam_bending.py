@@ -221,6 +221,7 @@ app.layout = html.Div([
                 labelStyle={'display': 'block'},
                 value='simply_supported'
             ),
+            html.Div(id='support-type-image', children=[]),
         ], style={'width': '50%'}),
     ], style={'display': 'flex', 'flex-direction': 'row'}),    
     #
@@ -303,6 +304,19 @@ def update_cross_section_container(value):
             html.Label('Radius (m)', style=circle),
             dcc.Input(id="r", type="text", step=0.001, value=0.1, style=circle),
         ]
+
+@app.callback(
+    Output('support-type-image', 'children'),
+    Input('support-type', 'value')
+)
+def update_cross_section_container(value):
+    imageURL = ''
+    if value == 'cantilever':
+        imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/cantilever.png'
+    elif value == 'simply_supported':
+        imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/simply_supported.png'
+
+    return [html.Img(src=imageURL),]
 
 @app.callback(
     Output('deflection_graph', 'figure'),
