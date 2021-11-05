@@ -176,18 +176,6 @@ app.layout = html.Div([
             ),
         ], style={'width': '10%'}),
         html.Div([
-            html.Label('Support Type'),
-            dcc.RadioItems(
-                id='support-type',
-                options=[
-                    {'label': 'Simply Supported', 'value': 'simply_supported'},
-                    {'label': 'Cantilever', 'value': 'cantilever'},
-                ],
-                labelStyle={'display': 'block'},
-                value='simply_supported'
-            ),
-        ], style={'width': '10%'}),
-        html.Div([
             html.Label('Beam Length (m)'),
             dcc.Input(id="beam-length", type="text", step=0.001, value=10.0),
             html.Label('Beam Cross Section'),
@@ -209,16 +197,6 @@ app.layout = html.Div([
         html.Div([
             html.Label('Force Magnitude (N)'),
             dcc.Input(id="force-mag", type="text", step=0.001, value=1000.0),
-            # dcc.Slider(
-            #     id='force-mag',
-            #     min=1,
-            #     max=100,
-            #     marks={
-            #         1: {'label': '1N', 'style': {'color': '#77b0b1'}},
-            #         100: {'label': '100N', 'style': {'color': '#f50'}}},
-            #     tooltip={"placement": "bottom", "always_visible": True},
-            #     value=50,
-            # ),
             html.Br(),
             html.Label('Force Location (x)'),
             dcc.Slider(
@@ -231,8 +209,20 @@ app.layout = html.Div([
                 tooltip={"placement": "bottom", "always_visible": True},
                 value=10,
             )
-        ], style={'width': '20%'})
-    ], style={'display': 'flex', 'flex-direction': 'row'}),
+        ], style={'width': '20%'}),
+        html.Div([
+            html.Label('Support Type'),
+            dcc.RadioItems(
+                id='support-type',
+                options=[
+                    {'label': 'Simply Supported', 'value': 'simply_supported'},
+                    {'label': 'Cantilever', 'value': 'cantilever'},
+                ],
+                labelStyle={'display': 'block'},
+                value='simply_supported'
+            ),
+        ], style={'width': '50%'}),
+    ], style={'display': 'flex', 'flex-direction': 'row'}),    
     #
     # Visualization
     #
