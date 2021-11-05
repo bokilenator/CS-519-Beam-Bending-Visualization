@@ -37,7 +37,9 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
             raise Exception(error_msg_a + str(a))
     elif support_type == 'simply_supported':
         b = (L - a)
-        if 0.0 <= x < a:
+        if b == 0:
+            return 0.0
+        elif 0.0 <= x < a:
             return (-F * b * x * (L ** 2 - x ** 2 - (L - a) **2)) / (6 * L * E[material] * calc_I(xsection))
         elif a <= x <= L:
             return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
@@ -87,7 +89,9 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
     elif support_type == 'simply_supported':
         b = L - a
         M_max = (F * a * b) / L
-        if 0.0 <= x <= a:
+        if a == 0.0:
+            return 0.0
+        elif 0.0 <= x <= a:
             return (x / a) * M_max
         elif a < x <= L:
             return M_max * ( (-(x - a) / b) + 1)
@@ -178,7 +182,7 @@ app.layout = html.Div([
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length (m)'),
-            dcc.Input(id="beam-length", type="number", step=0.001, value=10.0),
+            dcc.Input(id="beam-length", type="text", step=0.001, value=10.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
@@ -196,23 +200,24 @@ app.layout = html.Div([
                 ]),
         ], style={'paddingRight': 40, 'width': '10%'}),
         html.Div([
-            html.Label('Force Magnitude'),
-            dcc.Slider(
-                id='force-mag',
-                min=1,
-                max=100,
-                marks={
-                    1: {'label': '1N', 'style': {'color': '#77b0b1'}},
-                    100: {'label': '100N', 'style': {'color': '#f50'}}},
-                tooltip={"placement": "bottom", "always_visible": True},
-                value=50,
-            ),
+            html.Label('Force Magnitude (N)'),
+            dcc.Input(id="force-mag", type="number", step=0.001, value=1000.0),
+            # dcc.Slider(
+            #     id='force-mag',
+            #     min=1,
+            #     max=100,
+            #     marks={
+            #         1: {'label': '1N', 'style': {'color': '#77b0b1'}},
+            #         100: {'label': '100N', 'style': {'color': '#f50'}}},
+            #     tooltip={"placement": "bottom", "always_visible": True},
+            #     value=50,
+            # ),
             html.Br(),
             html.Label('Force Location (x)'),
             dcc.Slider(
                 id='force-location', 
-                min=1,
-                step=0.1,
+                min=0,
+                step=0.001,
                 max=10,
                 marks={
                     1: {'label': '1m', 'style': {'color': '#77b0b1'}},
@@ -268,7 +273,7 @@ def update_force_location_range(bl):
         1: {'label': '1m', 'style': {'color': '#77b0b1'}},
         float(bl) - 0.1: {'label': end_label, 'style': {'color': '#f50'}}}
     loc = float(bl) / 2
-    max = float(bl) - 0.1
+    max = float(bl)
     #print(max, loc, marks)
     return [ max, loc, marks ]
 
