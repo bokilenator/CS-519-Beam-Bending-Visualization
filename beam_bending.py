@@ -178,7 +178,7 @@ app.layout = html.Div([
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length (m)'),
-            dcc.Input(id="beam-length", type="number", step=0.1, value=100.0),
+            dcc.Input(id="beam-length", type="number", step=0.001, value=10.0),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
@@ -190,9 +190,9 @@ app.layout = html.Div([
             ),
             html.Div(id='xsection-container', children=
                 [
-                dcc.Input(id="b", type="number", step=0.1, value=5.0),
-                dcc.Input(id="h", type="number", step=0.1, value=10.0),
-                dcc.Input(id="r", type="number", value=5.0)
+                dcc.Input(id="b", type="number", step=0.1, value=0.1),
+                dcc.Input(id="h", type="number", step=0.1, value=0.1),
+                dcc.Input(id="r", type="number", value=0.1)
                 ]),
         ], style={'paddingRight': 40, 'width': '10%'}),
         html.Div([
@@ -295,13 +295,13 @@ def update_cross_section_container(value):
     return [
             html.Br(style=rectangular),
             html.Img(src=imageURL),
-            html.Label('b', style=rectangular),
-            dcc.Input(id="b", type="number", step=0.1, value=5.0, style=rectangular),
-            html.Label('h', style=rectangular),
-            dcc.Input(id="h", type="number", step=0.1, value=10.0, style=rectangular),
+            html.Label('b (m)', style=rectangular),
+            dcc.Input(id="b", type="number", step=0.001, value=0.1, style=rectangular),
+            html.Label('h (m)', style=rectangular),
+            dcc.Input(id="h", type="number", step=0.001, value=0.1, style=rectangular),
             html.Br(style=circle),
-            html.Label('Radius', style=circle),
-            dcc.Input(id="r", type="number", value=5.0, style=circle),
+            html.Label('Radius (m)', style=circle),
+            dcc.Input(id="r", type="number", step=0.001, value=0.1, style=circle),
         ]
 
 @app.callback(
@@ -376,7 +376,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         xaxis = dict(
             title='Distance (m)',
-            range=[-1, span+1]
+            range=[0, span]
         ),
         showlegend=False
     )
@@ -396,7 +396,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         xaxis = dict(
             title='Distance (m)',
-            range=[-1, span+1]
+            range=[0, span]
         ),
         showlegend=False
     )
@@ -416,7 +416,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         xaxis = dict(
             title='Distance (m)',
-            range=[-1, span+1]
+            range=[0, span]
         ),
         showlegend=False
     )
@@ -436,7 +436,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         xaxis = dict(
             title='Distance (m)',
-            range=[-1, span+1]
+            range=[0, span]
         ),
         showlegend=False
     )
