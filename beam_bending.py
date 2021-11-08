@@ -1,23 +1,21 @@
-import numpy as np
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-
 import dash
-from dash import html
+import numpy as np
+import plotly.graph_objects as go
 from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
 
 # Young's modulus constant in Pascal
 E = {
-    'aluminum': 68.0 * 10**9,
-    'wood': 10.0 * 10**9,
-    'titanium': 116.0 * 10**9,
-    'steel': 200.0 * 10**9,}
+    'aluminum': 68.0 * 10 ** 9,
+    'wood': 10.0 * 10 ** 9,
+    'titanium': 116.0 * 10 ** 9,
+    'steel': 200.0 * 10 ** 9, }
 
 error_msg_a = 'Is a between 0 and L? a: '
 error_msg_support_type = 'Invalid support_type'
 error_msg_xsection = 'Invalid xsection'
+
 
 # F: force magnitude in newtons. this is a float.
 # x: inspection location, beam deflection at this location, in meters. this is a float.
@@ -27,9 +25,9 @@ error_msg_xsection = 'Invalid xsection'
 # L: total length of beam in meters. this is a float.
 # support_type: type of beam support. expected value: 'cantilever', 'simply_supported'
 
-def beam_deflection(F = None, x = None, material = None, xsection = None, a = None, L = None, support_type = None):
+def beam_deflection(F=None, x=None, material=None, xsection=None, a=None, L=None, support_type=None):
     x = max(0, min(x, L))
-    
+
     if support_type == 'cantilever':
         if 0.0 <= x < a:
             return (-F * x ** 2 * (3 * a - x)) / (6 * E[material] * calc_I(xsection))
@@ -41,32 +39,34 @@ def beam_deflection(F = None, x = None, material = None, xsection = None, a = No
         b = (L - a)
         if b == 0:
             return 0.0
-        
+
         if 0.0 <= x < a:
-            return (-F * b * x * (L ** 2 - x ** 2 - (L - a) **2)) / (6 * L * E[material] * calc_I(xsection))
+            return (-F * b * x * (L ** 2 - x ** 2 - (L - a) ** 2)) / (6 * L * E[material] * calc_I(xsection))
         elif a <= x <= L:
-            return (-F * b * ( ((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x**3) ) ) / (6 * L * E[material] * calc_I(xsection))
+            return (-F * b * (((L / b) * (x - a) ** 3) + ((L ** 2 - b ** 2) * x) - (x ** 3))) / (
+                    6 * L * E[material] * calc_I(xsection))
         else:
             raise Exception(error_msg_a + f'a: {a} L: {L} x: {x}')
     else:
         raise Exception(error_msg_support_type)
-    
-    
-def calc_I(xsection = None):
+
+
+def calc_I(xsection=None):
     if xsection['type'] == 'rectangular':
         return (xsection['b'] * xsection['h'] ** 3) / 12
     elif xsection['type'] == 'circle':
         return (np.pi * xsection['r'] ** 4) / 4
     else:
         raise Exception(error_msg_xsection)
-    
+
+
 # print( beam_deflection(F = 113.2, x = 2.3, material = 'aluminum', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='cantilever') )
 # print( beam_deflection(F = 113.2, x = 2.3, material = 'wood', xsection = {'type': 'circle', 'r': 3.2}, a = 5.0, L = 10.0, support_type='cantilever') )
 # print( beam_deflection(F = 113.2, x = 2.3, material = 'steel', xsection = {'type': 'rectangular', 'b': 3.2, 'h': 5.3}, a = 5.0, L = 10.0, support_type='simply_supported') )
 
-def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None):
+def beam_shear_force(F=None, x=None, a=None, L=None, support_type=None):
     x = max(0, min(x, L))
-    
+
     if support_type == 'cantilever':
         if 0.0 <= x <= L:
             return F
@@ -82,15 +82,16 @@ def beam_shear_force(F = None, x = None, a = None, L = None, support_type = None
             raise Exception(error_msg_a + str(a))
     else:
         raise Exception(error_msg_support_type)
-    
+
+
 # print( beam_shear_force(F = 113.2, x = 2.3, a = 3.2, L = 10.0, support_type='cantilever') )
 # print( beam_shear_force(F = 113.2, x = 7.2, a = 7.1, L = 10.0, support_type='cantilever') )
 # print( beam_shear_force(F = 113.2, x = 1.3, a = 7.6, L = 10.0, support_type='simply_supported') )
 # print( beam_shear_force(F = 113.2, x = 8.1, a = 7.6, L = 10.0, support_type='simply_supported') )
-    
-def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = None):
+
+def beam_bending_moment(F=None, x=None, a=None, L=None, support_type=None):
     x = max(0, min(x, L))
-    
+
     if support_type == 'cantilever':
         return -F * (L - x)
     elif support_type == 'simply_supported':
@@ -101,11 +102,12 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
         elif 0.0 <= x <= a:
             return (x / a) * M_max
         elif a < x <= L:
-            return M_max * ( (-(x - a) / b) + 1)
+            return M_max * ((-(x - a) / b) + 1)
         else:
             raise Exception(error_msg_a + str(a))
     else:
         raise Exception(error_msg_support_type)
+
 
 # print( beam_bending_moment(F = 113.2, x = 0.0, a = 3.2, L = 10.0, support_type='cantilever') )
 # print( beam_bending_moment(F = 113.2, x = 5.0, a = 3.2, L = 10.0, support_type='cantilever') )
@@ -116,30 +118,35 @@ def beam_bending_moment(F = None, x = None, a = None, L = None, support_type = N
 # print( beam_bending_moment(F = 113.2, x = 5.7, a = 4.3, L = 10.0, support_type='simply_supported') )
 # print( beam_bending_moment(F = 113.2, x = 10.0, a = 4.3, L = 10.0, support_type='simply_supported') )
 
-def calc_A(xsection = None):
+def calc_A(xsection=None):
     if xsection['type'] == 'rectangular':
         return xsection['b'] * xsection['h']
     elif xsection['type'] == 'circle':
         return np.pi * xsection['r'] ** 2
     else:
         raise Exception(error_msg_xsection)
-    
-def beam_shear_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+
+
+def beam_shear_stress(F=None, x=None, xsection=None, a=None, L=None, support_type=None):
     return beam_shear_force(F, x, a, L, support_type) / calc_A(xsection)
 
-def calc_c(xsection = None):
+
+def calc_c(xsection=None):
     if xsection['type'] == 'rectangular':
         return 0.5 * xsection['h']
     elif xsection['type'] == 'circle':
         return xsection['r']
     else:
         raise Exception(error_msg_xsection)
-    
-def beam_bending_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
+
+
+def beam_bending_stress(F=None, x=None, xsection=None, a=None, L=None, support_type=None):
     return beam_bending_moment(F, x, a, L, support_type) * calc_c(xsection) / calc_I(xsection)
 
-def von_mises_stress(F = None, x = None, xsection = None, a = None, L = None, support_type = None):
-    return (beam_bending_stress(F, x, xsection, a, L, support_type) ** 2 + 3 * beam_shear_stress(F, x, xsection, a, L, support_type) ** 2) ** 0.5
+
+def von_mises_stress(F=None, x=None, xsection=None, a=None, L=None, support_type=None):
+    return (beam_bending_stress(F, x, xsection, a, L, support_type) ** 2 + 3 * beam_shear_stress(F, x, xsection, a, L,
+                                                                                                 support_type) ** 2) ** 0.5
 
 
 #######################################################################
@@ -188,19 +195,19 @@ app.layout = html.Div([
                 value='rectangular'
             ),
             html.Div(id='xsection-container', children=
-                [
+            [
                 dcc.Input(id="b", type="text", step=0.1, value=0.1),
                 dcc.Input(id="h", type="text", step=0.1, value=0.1),
                 dcc.Input(id="r", type="text", value=0.1)
-                ]),
+            ]),
         ], style={'paddingRight': 40, 'width': '10%'}),
         html.Div([
             html.Label('Force Magnitude (N)'),
-            dcc.Input(id="force-mag", type="text", step=0.001, value=1000.0),
+            dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0),
             html.Br(),
             html.Label('Force Location (x)'),
             dcc.Slider(
-                id='force-location', 
+                id='force-location',
                 min=0,
                 step=0.001,
                 max=10,
@@ -223,11 +230,18 @@ app.layout = html.Div([
             ),
             html.Div(id='support-type-image', children=[]),
         ], style={'width': '50%'}),
-    ], style={'display': 'flex', 'flex-direction': 'row'}),    
+    ], style={'display': 'flex', 'flex-direction': 'row'}),
     #
     # Visualization
     #
     html.H2("Visualization"),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='deflection_3d'
+            )
+        ], style={'flex': 1})
+    ]),
     html.Div([
         html.Div([
             dcc.Graph(
@@ -258,6 +272,7 @@ app.layout = html.Div([
     ]),
 ])
 
+
 @app.callback(
     Output('force-location', 'max'),
     Output('force-location', 'value'),
@@ -270,8 +285,9 @@ def update_force_location_range(bl):
     #     str(bl): {'label': f'{bl}m', 'style': {'color': '#f50'}}}
     loc = float(bl) / 2
     max = float(bl)
-    #print(max, loc, marks)
-    return [ max, loc ]
+    # print(max, loc, marks)
+    return [max, loc]
+
 
 @app.callback(
     Output('xsection-container', 'children'),
@@ -279,31 +295,32 @@ def update_force_location_range(bl):
 )
 def update_cross_section_container(value):
     print('You have selected "{}"'.format(value))
-    
+
     rectangular = {'display': 'none'}
     circle = {'display': 'none'}
     imageURL = ''
-    
+
     if value == 'rectangular':
         rectangular = {'display': 'block'}
         circle = {'display': 'none'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/rect_xsection.png'
-    elif value == 'circle':    
+    elif value == 'circle':
         rectangular = {'display': 'none'}
         circle = {'display': 'block'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/circle_xsection.png'
-    
+
     return [
-            html.Br(style=rectangular),
-            html.Img(src=imageURL),
-            html.Label('b (m)', style=rectangular),
-            dcc.Input(id="b", type="text", step=0.001, value=0.1, style=rectangular),
-            html.Label('h (m)', style=rectangular),
-            dcc.Input(id="h", type="text", step=0.001, value=0.1, style=rectangular),
-            html.Br(style=circle),
-            html.Label('Radius (m)', style=circle),
-            dcc.Input(id="r", type="text", step=0.001, value=0.1, style=circle),
-        ]
+        html.Br(style=rectangular),
+        html.Img(src=imageURL),
+        html.Label('b (m)', style=rectangular),
+        dcc.Input(id="b", type="text", step=0.001, value=0.1, style=rectangular),
+        html.Label('h (m)', style=rectangular),
+        dcc.Input(id="h", type="text", step=0.001, value=0.1, style=rectangular),
+        html.Br(style=circle),
+        html.Label('Radius (m)', style=circle),
+        dcc.Input(id="r", type="text", step=0.001, value=0.1, style=circle),
+    ]
+
 
 @app.callback(
     Output('support-type-image', 'children'),
@@ -316,13 +333,15 @@ def update_cross_section_container(value):
     elif value == 'simply_supported':
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/simply_supported.png'
 
-    return [html.Img(src=imageURL),]
+    return [html.Img(src=imageURL), ]
+
 
 @app.callback(
     Output('deflection_graph', 'figure'),
     Output('shear_stress_graph', 'figure'),
     Output('bending_stress_graph', 'figure'),
     Output('von_mises_graph', 'figure'),
+    Output('deflection_3d', 'figure'),
     Input('material-type', 'value'),
     Input('support-type', 'value'),
     Input('beam-length', 'value'),
@@ -345,7 +364,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     print('You have selected h : "{}"'.format(h))
     print('You have selected r : "{}"'.format(r))
     print('------')
-    
+
     xsection = {}
     if xs == 'rectangular':
         xsection['type'] = 'rectangular'
@@ -355,100 +374,127 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         xsection['type'] = 'circle'
         xsection['r'] = float(r)
 
-    #print(xsection)
+    # print(xsection)
 
-    N = 10000
+    # still need to figure out how to turn into rectangle, right now just pixel size for cylinder
+    bar_width = 15
     step = 0.01
-    X = np.arange(start = 0.0, stop = float(bl) + step, step = step)
+    X = np.arange(start=0.0, stop=float(bl) + step, step=step)
     # X = np.linspace(start = 0.0, stop = float(bl), num = N)
-    X = np.sort(np.append(X, float(fl)))     ## make sure crictical point is in the array
+    X = np.sort(np.append(X, float(fl)))  ## make sure crictical point is in the array
     Y = []
     shear_stress = []
     bending_stress = []
     vonmises_stress = []
     for i in X:
-        Y.append(beam_deflection(F = float(fm), x = float(i), material = mt, xsection = xsection, a = float(fl), L = float(bl), support_type = st))
-        shear_stress.append(beam_shear_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
-        bending_stress.append(beam_bending_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
-        vonmises_stress.append(von_mises_stress(F = float(fm), x = float(i), xsection = xsection, a = float(fl), L = float(bl), support_type = st))
-    
+        Y.append(beam_deflection(F=float(fm), x=float(i), material=mt, xsection=xsection, a=float(fl), L=float(bl),
+                                 support_type=st))
+        shear_stress.append(
+            beam_shear_stress(F=float(fm), x=float(i), xsection=xsection, a=float(fl), L=float(bl), support_type=st))
+        bending_stress.append(
+            beam_bending_stress(F=float(fm), x=float(i), xsection=xsection, a=float(fl), L=float(bl), support_type=st))
+        vonmises_stress.append(
+            von_mises_stress(F=float(fm), x=float(i), xsection=xsection, a=float(fl), L=float(bl), support_type=st))
+
     # print(Y)
 
     span = float(bl)
     layout_deflection = go.Layout(
-        title = {
+        title={
             'text': 'Deflection',
             'y': 0.85,
             'x': 0.5,
             'xanchor': 'center',
-            'yanchor':'top'},
-        titlefont = dict(size=15),
-        yaxis = dict(
+            'yanchor': 'top'},
+        titlefont=dict(size=15),
+        yaxis=dict(
             title='Deflection (m)',
-            showexponent = 'all',
-            exponentformat = 'e'
+            showexponent='all',
+            exponentformat='e'
         ),
-        xaxis = dict(
+        xaxis=dict(
             title='Distance (m)',
             range=[0, span]
         ),
         showlegend=False
     )
-    
+    layout_deflection_3d = go.Layout(
+        title={
+            'text': '3D Deflection',
+            'y': 0.85,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'},
+        titlefont=dict(size=15),
+        scene=dict(
+            xaxis=dict(
+                title='Distance (m)',
+                range=[-1, span]
+            ),
+            yaxis=dict(
+                title='Deflection (m)',
+                showexponent='all',
+                exponentformat='e',
+                range=[-1 * span, span]
+            )
+        ),
+        showlegend=False
+    )
+
     layout_shear_stress = go.Layout(
-        title = {
+        title={
             'text': 'Shear Stress',
             'y': 0.85,
             'x': 0.5,
             'xanchor': 'center',
-            'yanchor':'top'},
-        titlefont = dict(size=15),
-        yaxis = dict(
+            'yanchor': 'top'},
+        titlefont=dict(size=15),
+        yaxis=dict(
             title='Shear Stress (Pascal)',
-            showexponent = 'all',
-            exponentformat = 'e'
+            showexponent='all',
+            exponentformat='e'
         ),
-        xaxis = dict(
+        xaxis=dict(
             title='Distance (m)',
             range=[0, span]
         ),
         showlegend=False
     )
-    
+
     layout_bending_stress = go.Layout(
-        title = {
+        title={
             'text': 'Bending Stress',
             'y': 0.85,
             'x': 0.5,
             'xanchor': 'center',
-            'yanchor':'top'},
-        titlefont = dict(size=15),
-        yaxis = dict(
+            'yanchor': 'top'},
+        titlefont=dict(size=15),
+        yaxis=dict(
             title='Bending Stress (Pascal)',
-            showexponent = 'all',
-            exponentformat = 'e'
+            showexponent='all',
+            exponentformat='e'
         ),
-        xaxis = dict(
+        xaxis=dict(
             title='Distance (m)',
             range=[0, span]
         ),
         showlegend=False
     )
-    
+
     layout_vonmises_stress = go.Layout(
-        title = {
+        title={
             'text': 'Von Mises Stress',
             'y': 0.85,
             'x': 0.5,
             'xanchor': 'center',
-            'yanchor':'top'},
-        titlefont = dict(size=15),
-        yaxis = dict(
+            'yanchor': 'top'},
+        titlefont=dict(size=15),
+        yaxis=dict(
             title='Von Mises Stress (Pascal)',
-            showexponent = 'all',
-            exponentformat = 'e'
+            showexponent='all',
+            exponentformat='e'
         ),
-        xaxis = dict(
+        xaxis=dict(
             title='Distance (m)',
             range=[0, span]
         ),
@@ -456,60 +502,78 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     )
 
     line_deflection = go.Scatter(
-        x = X,
-        y = Y,
-        mode = 'lines',
-        name = 'Deflection',
-        line_color = 'orange',
-        fill = 'tonexty',
-        fillcolor = 'rgba(255, 255, 0, 0.1)'
+        x=X,
+        y=Y,
+        mode='lines',
+        name='Deflection',
+        line_color='orange',
+        fill='tonexty',
+        fillcolor='rgba(255, 255, 0, 0.1)'
     )
-    
+
     line_shear_stress = go.Scatter(
-        x = X,
-        y = shear_stress,
-        mode = 'lines',
-        name = 'Shear Stress',
-        line_color = 'orange',
-        fill = 'tonexty',
-        fillcolor = 'rgba(255, 255, 0, 0.1)'
+        x=X,
+        y=shear_stress,
+        mode='lines',
+        name='Shear Stress',
+        line_color='orange',
+        fill='tonexty',
+        fillcolor='rgba(255, 255, 0, 0.1)'
     )
-    
+
     line_bending_stress = go.Scatter(
-        x = X,
-        y = bending_stress,
-        mode = 'lines',
-        name = 'Bending Stress',
-        line_color = 'orange',
-        fill = 'tonexty',
-        fillcolor = 'rgba(255, 255, 0, 0.1)'
+        x=X,
+        y=bending_stress,
+        mode='lines',
+        name='Bending Stress',
+        line_color='orange',
+        fill='tonexty',
+        fillcolor='rgba(255, 255, 0, 0.1)'
     )
-    
+
     line_vonmises_stress = go.Scatter(
-        x = X,
-        y = vonmises_stress,
-        mode = 'lines',
-        name = 'Von Mises Stress',
-        line_color = 'orange',
-        fill = 'tonexty',
-        fillcolor = 'rgba(255, 255, 0, 0.1)'
+        x=X,
+        y=vonmises_stress,
+        mode='lines',
+        name='Von Mises Stress',
+        line_color='orange',
+        fill='tonexty',
+        fillcolor='rgba(255, 255, 0, 0.1)'
+    )
+
+    line_3d_deflection = go.Scatter3d(
+        x=X, y=Y, z=[0] * len(X),
+        marker=dict(
+            size=bar_width,
+            color=Y,
+            colorscale='redor',
+            colorbar=dict(
+                title="Deflection (m)"
+            )
+        ),
+        line=dict(
+            color='darkblue',
+            width=10
+        ),
     )
 
     axis = go.Scatter(
-        x = [0, span],
-        y = [0, 0],
-        mode = 'lines',
-        line_color = 'black'
+        x=[0, span],
+        y=[0, 0],
+        mode='lines',
+        line_color='black'
     )
 
-    figure = go.Figure(data=[line_deflection, axis], layout = layout_deflection)
-    shear = go.Figure(data=[line_shear_stress], layout = layout_shear_stress)
-    bending = go.Figure(data=[line_bending_stress], layout = layout_bending_stress)
-    vonmises = go.Figure(data=[line_vonmises_stress], layout = layout_vonmises_stress)
-    
-    figure.update_layout(transition_duration=50)
-    
-    return figure, shear, bending, vonmises
+    deflection = go.Figure(data=[line_deflection, axis], layout=layout_deflection)
+    shear = go.Figure(data=[line_shear_stress], layout=layout_shear_stress)
+    bending = go.Figure(data=[line_bending_stress], layout=layout_bending_stress)
+    vonmises = go.Figure(data=[line_vonmises_stress], layout=layout_vonmises_stress)
+    deflection_3d = go.Figure(data=line_3d_deflection, layout=layout_deflection_3d)
+
+    deflection.update_layout(transition_duration=50)
+
+    return deflection, shear, bending, vonmises, deflection_3d
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
