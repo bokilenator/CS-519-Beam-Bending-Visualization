@@ -435,7 +435,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 title='Deflection (m)',
                 showexponent='all',
                 exponentformat='e',
-                range=[-1 * span, span]
+                range=[min(min(Y), -1*span) - 1, span]
             )
         ),
         showlegend=False
@@ -549,7 +549,8 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             colorscale='redor',
             colorbar=dict(
                 title="Deflection (m)"
-            )
+            ),
+            symbol="square" if xs == "rectangular" else "circle"
         ),
         line=dict(
             color='darkblue',
