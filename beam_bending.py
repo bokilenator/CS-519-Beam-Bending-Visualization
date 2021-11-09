@@ -435,7 +435,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 title='Deflection (m)',
                 showexponent='all',
                 exponentformat='e',
-                range=[min(min(Y), -1*span) - 1, span]
+                range=[-1 * span, span]
             )
         ),
         showlegend=False
