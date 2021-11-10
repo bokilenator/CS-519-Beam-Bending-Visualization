@@ -542,7 +542,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     )
 
     line_3d_deflection = go.Scatter3d(
-        x=X, y=Y, z=[0] * len(X),
+        x=X, z=Y, y=[0] * len(X),
         marker=dict(
             size=bar_width,
             color=Y,
