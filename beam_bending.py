@@ -200,7 +200,7 @@ app.layout = html.Div([
                 dcc.Input(id="h", type="text", step=0.1, value=0.1),
                 dcc.Input(id="r", type="text", value=0.1)
             ]),
-        ], style={'paddingRight': 40, 'width': '10%'}),
+        ], style={'marginRight': 40, 'width': '10%'}),
         html.Div([
             html.Label('Force Magnitude (N)'),
             dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0),
@@ -235,12 +235,22 @@ app.layout = html.Div([
     # Visualization
     #
     html.H2("Visualization"),
+    html.Label('Coloring'),
+    dcc.RadioItems(
+        id='colormap-selection',
+        options=[
+            {'label': 'Deflection', 'value': 'deflection'},
+            {'label': 'Von Mises', 'value': 'von_mises'},
+        ],
+        labelStyle={'display': 'block'},
+        value='deflection'
+    ),
     html.Div([
         html.Div([
             dcc.Graph(
                 id='deflection_3d'
             )
-        ], style={'flex': 1})
+        ], style={'flex': 1}),
     ]),
     html.Div([
         html.Div([
@@ -350,9 +360,10 @@ def update_cross_section_container(value):
     Input('force-mag', 'value'),
     Input('b', 'value'),
     Input('h', 'value'),
-    Input('r', 'value')
+    Input('r', 'value'),
+    Input('colormap-selection', 'value'),
 )
-def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
+def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
     print('------')
     print('You have selected Material Type : "{}"'.format(mt))
     print('You have selected Support Type : "{}"'.format(st))
@@ -363,6 +374,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     print('You have selected b : "{}"'.format(b))
     print('You have selected h : "{}"'.format(h))
     print('You have selected r : "{}"'.format(r))
+    print('You have selected colormap : "{}"'.format(cm))
     print('------')
 
     xsection = {}
@@ -541,11 +553,17 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         fillcolor='rgba(255, 255, 0, 0.1)'
     )
 
+    color = None
+    if cm == 'deflection':
+        color = Y
+    elif cm == 'von_mises':
+        color = vonmises_stress
+        
     line_3d_deflection = go.Scatter3d(
         x=X, z=Y, y=[0] * len(X),
         marker=dict(
             size=bar_width,
-            color=Y,
+            color=color,
             colorscale='redor',
             colorbar=dict(
                 title="Deflection (m)"
