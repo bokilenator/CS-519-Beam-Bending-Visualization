@@ -312,16 +312,16 @@ def update_cross_section_container(value):
 
     if value == 'rectangular':
         rectangular = {'display': 'block', 'width': '100%'}
-        circle = {'display': 'none', 'width': '100%'}
+        circle = {'display': 'none'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/rect_xsection.png'
     elif value == 'circle':
-        rectangular = {'display': 'none', 'width': '100%'}
+        rectangular = {'display': 'none'}
         circle = {'display': 'block', 'width': '100%'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/circle_xsection.png'
 
     return [
         html.Br(style=rectangular),
-        html.Img(src=imageURL, style={'objectFit': 'contain', 'width': '100%'}),
+        html.Img(src=imageURL, style={'objectFit': 'contain', 'width': '100%', 'maxWidth': '50%'}),
         html.Label('b (m)', style=rectangular),
         dcc.Input(id="b", type="text", step=0.001, value=0.1, style=rectangular),
         html.Label('h (m)', style=rectangular),
@@ -343,7 +343,7 @@ def update_cross_section_container(value):
     elif value == 'simply_supported':
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/simply_supported.png'
 
-    return [html.Img(src=imageURL), ]
+    return [html.Img(src=imageURL, style={'width': '100%', 'maxWidth': '40%'}), ]
 
 
 @app.callback(
@@ -450,7 +450,8 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
                 range=[-1 * span, span]
             )
         ),
-        showlegend=False
+        showlegend=False,
+        height = 600,
     )
 
     layout_shear_stress = go.Layout(
