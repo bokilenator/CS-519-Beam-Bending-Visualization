@@ -203,7 +203,7 @@ app.layout = html.Div([
         ], style={'marginRight': 40, 'width': '10%'}),
         html.Div([
             html.Label('Force Magnitude (N)'),
-            dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0),
+            dcc.Input(id="force-mag", type="text", step=0.001, value=500.0),
             html.Br(),
             html.Label('Force Location (x)'),
             dcc.Slider(
@@ -554,10 +554,13 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
     )
 
     color = None
+    title = None
     if cm == 'deflection':
         color = Y
+        title = 'Deflection (m)'
     elif cm == 'von_mises':
         color = vonmises_stress
+        title = 'Stress (Pa)'
         
     line_3d_deflection = go.Scatter3d(
         x=X, z=Y, y=[0] * len(X),
@@ -566,7 +569,8 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
             color=color,
             colorscale='redor',
             colorbar=dict(
-                title="Deflection (m)"
+                title=title,
+                exponentformat='e',
             ),
             symbol="square" if xs == "rectangular" else "circle"
         ),
