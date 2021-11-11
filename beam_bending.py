@@ -184,7 +184,7 @@ app.layout = html.Div([
         ], style={'width': '10%'}),
         html.Div([
             html.Label('Beam Length (m)'),
-            dcc.Input(id="beam-length", type="text", step=0.001, value=10.0),
+            dcc.Input(id="beam-length", type="text", step=0.001, value=10.0, style={'width': '100%'}),
             html.Label('Beam Cross Section'),
             dcc.Dropdown(
                 id='xsection',
@@ -200,10 +200,10 @@ app.layout = html.Div([
                 dcc.Input(id="h", type="text", step=0.1, value=0.1),
                 dcc.Input(id="r", type="text", value=0.1)
             ]),
-        ], style={'marginRight': 40, 'width': '10%'}),
+        ], style={'paddingRight': 40, 'width': '20%'}),
         html.Div([
             html.Label('Force Magnitude (N)'),
-            dcc.Input(id="force-mag", type="text", step=0.001, value=500.0),
+            dcc.Input(id="force-mag", type="text", step=0.001, value=500.0, style={'width': '100%'}),
             html.Br(),
             html.Label('Force Location (x)'),
             dcc.Slider(
@@ -216,7 +216,7 @@ app.layout = html.Div([
                 tooltip={"placement": "bottom", "always_visible": True},
                 value=10,
             )
-        ], style={'width': '20%'}),
+        ], style={'paddingRight': 40, 'width': '20%'}),
         html.Div([
             html.Label('Support Type'),
             dcc.RadioItems(
@@ -311,17 +311,17 @@ def update_cross_section_container(value):
     imageURL = ''
 
     if value == 'rectangular':
-        rectangular = {'display': 'block'}
-        circle = {'display': 'none'}
+        rectangular = {'display': 'block', 'width': '100%'}
+        circle = {'display': 'none', 'width': '100%'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/rect_xsection.png'
     elif value == 'circle':
-        rectangular = {'display': 'none'}
-        circle = {'display': 'block'}
+        rectangular = {'display': 'none', 'width': '100%'}
+        circle = {'display': 'block', 'width': '100%'}
         imageURL = 'https://raw.githubusercontent.com/bokilenator/CS-519-Beam-Bending-Visualization/main/circle_xsection.png'
 
     return [
         html.Br(style=rectangular),
-        html.Img(src=imageURL),
+        html.Img(src=imageURL, style={'objectFit': 'contain', 'width': '100%'}),
         html.Label('b (m)', style=rectangular),
         dcc.Input(id="b", type="text", step=0.001, value=0.1, style=rectangular),
         html.Label('h (m)', style=rectangular),
