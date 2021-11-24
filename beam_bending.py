@@ -169,7 +169,7 @@ app.layout = html.Div([
     html.H2("Input Parameters"),
     html.Div([
         html.Div([
-            html.Label('Material'),
+            html.Label('Material', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.RadioItems(
                 id='material-type',
                 options=[
@@ -183,9 +183,9 @@ app.layout = html.Div([
             ),
         ], style={'width': '10%'}),
         html.Div([
-            html.Label('Beam Length (m)'),
+            html.Label('Beam Length (m)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.Input(id="beam-length", type="text", step=0.001, value=10.0, style={'width': '100%'}),
-            html.Label('Beam Cross Section'),
+            html.Label('Beam Cross Section', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.Dropdown(
                 id='xsection',
                 options=[
@@ -202,10 +202,10 @@ app.layout = html.Div([
             ]),
         ], style={'paddingRight': 40, 'width': '20%'}),
         html.Div([
-            html.Label('Force Magnitude (N)'),
+            html.Label('Force Magnitude (N)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.Input(id="force-mag", type="text", step=0.001, value=500.0, style={'width': '100%'}),
             html.Br(),
-            html.Label('Force Location (x)'),
+            html.Label('Force Location (x)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.Slider(
                 id='force-location',
                 min=0,
@@ -218,7 +218,7 @@ app.layout = html.Div([
             )
         ], style={'paddingRight': 40, 'width': '20%'}),
         html.Div([
-            html.Label('Support Type'),
+            html.Label('Support Type', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.RadioItems(
                 id='support-type',
                 options=[
@@ -235,7 +235,7 @@ app.layout = html.Div([
     # Visualization
     #
     html.H2("Visualization"),
-    html.Label('Coloring'),
+    html.Label('3D Coloring', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
     dcc.RadioItems(
         id='colormap-selection',
         options=[
@@ -250,36 +250,30 @@ app.layout = html.Div([
             dcc.Graph(
                 id='deflection_3d'
             )
-        ], style={'flex': 1}),
-    ]),
-    html.Div([
+        ], style={'width': '50%'}),
         html.Div([
             dcc.Graph(
                 id='deflection_graph'
             )
-        ], style={'flex': 1})
-    ]),
+        ], style={'width': '50%'}),
+    ], style={'display': 'flex', 'flex-direction': 'row'}),
     html.Div([
         html.Div([
             dcc.Graph(
                 id='shear_stress_graph'
             )
-        ], style={'flex': 1})
-    ]),
-    html.Div([
+        ], style={'width': '33%'}),
         html.Div([
             dcc.Graph(
                 id='bending_stress_graph'
             )
-        ], style={'flex': 1})
-    ]),
-    html.Div([
+        ], style={'width': '33%'}),
         html.Div([
             dcc.Graph(
                 id='von_mises_graph'
             )
-        ], style={'flex': 1})
-    ]),
+        ], style={'width': '33%'})
+    ], style={'display': 'flex', 'flex-direction': 'row'})
 ])
 
 
@@ -451,7 +445,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
             )
         ),
         showlegend=False,
-        height = 600,
+        height = 600
     )
 
     layout_shear_stress = go.Layout(
@@ -514,11 +508,23 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
         showlegend=False
     )
 
+    min_deflection = min(Y)*2
+    max_deflection = max(Y)
     line_deflection = go.Scatter(
         x=X,
         y=Y,
-        mode='lines',
+        mode='markers',
         name='Deflection',
+        marker=dict(
+            size=8,
+            cmax=max_deflection,
+            cmin=min_deflection,
+            color=Y,
+            colorbar=dict(
+                title = 'Deflection (m)'
+            ),
+            colorscale="thermal"
+        ),
         line_color='orange',
         fill='tonexty',
         fillcolor='rgba(255, 255, 0, 0.1)'
@@ -568,17 +574,17 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
         marker=dict(
             size=bar_width,
             color=color,
-            colorscale='redor',
+            colorscale='thermal',
             colorbar=dict(
                 title=title,
                 exponentformat='e',
             ),
             symbol="square" if xs == "rectangular" else "circle"
         ),
-        line=dict(
-            color='darkblue',
-            width=10
-        ),
+        #line=dict(
+        #    color='darkblue',
+        #    width=10
+        #),
     )
 
     axis = go.Scatter(
