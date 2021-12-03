@@ -375,7 +375,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     # print(xsection)
 
     # still need to figure out how to turn into rectangle, right now just pixel size for cylinder
-    bar_width = 15
+    bar_width = 15 if xs =='rectangular' else 30
     step = 0.01
     X = np.arange(start=0.0, stop=float(bl) + step, step=step)
     # X = np.linspace(start = 0.0, stop = float(bl), num = N)
@@ -568,8 +568,25 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 exponentformat='e',
             ),
             symbol="square" if xs == "rectangular" else "circle"
-        )
+        ),
+        hovertemplate="distance: %{x}<br>" +
+                  "deflection: %{y}<br><extra></extra>"
     )
+    fl_index = np.where(X == fl)[0][0]
+    pressure_point_width = bar_width * 1.5
+    pressure_point_symbol = "x"
+    pressure_point = go.Scatter3d(
+        x=[fl], y=[Y[fl_index]], z=[0],
+        marker=dict(
+            size=pressure_point_width,
+            color='rgba(135, 206, 250, 0.8)',
+            symbol=pressure_point_symbol
+        ),
+        hovertemplate="<b>Force Location</b><br>" +
+                      "distance: %{x}<br>" +
+                      "deflection: %{y}<br><extra></extra>"
+    )
+
 
     axis = go.Scatter(
         x=[0, span],
@@ -582,7 +599,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     shear = go.Figure(data=[line_shear_stress], layout=layout_shear_stress)
     bending = go.Figure(data=[line_bending_stress], layout=layout_bending_stress)
     vonmises = go.Figure(data=[line_vonmises_stress], layout=layout_vonmises_stress)
-    deflection_3d = go.Figure(data=line_3d_deflection, layout=layout_deflection_3d)
+    deflection_3d = go.Figure(data=[line_3d_deflection, pressure_point], layout=layout_deflection_3d)
 
     deflection_3d.update_layout(
         updatemenus=[
@@ -590,19 +607,19 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 buttons=list([
                     dict(
                         args=[
-                            {"marker":{"color":Y, "size":bar_width, "colorscale":"thermal",
+                            {"marker":[{"color":Y, "size":bar_width, "colorscale":"thermal",
                               "symbol": ("square" if xs == "rectangular" else "circle"),
-                              "colorbar":{"title":{"text":"Deflection (m)"}, "exponentformat": "e" }}
-                             },{}],
+                              "colorbar":{"title":{"text":"Deflection (m)"}, "exponentformat": "e" }}, {"size":pressure_point_width, "color":'rgba(135, 206, 250, 0.8)',"symbol":pressure_point_symbol}]
+                             }],
                         label="Deflection",
                         method="update"
                     ),
                     dict(
                         args=[
-                            {"marker":{"color":vonmises_stress,"size":bar_width, "colorscale":"thermal",
+                            {"marker":[{"color":vonmises_stress,"size":bar_width, "colorscale":"thermal",
                              "symbol": ("square" if xs == "rectangular" else "circle"),
-                             "colorbar":{"title":{"text":"Stress (Pa)", "exponentformat": "e"} }}
-                             },{}],
+                             "colorbar":{"title":{"text":"Stress (Pa)", "exponentformat": "e"} }}, {"size":pressure_point_width, "color":'rgba(135, 206, 250, 0.8)',"symbol":pressure_point_symbol}]
+                             }],
                         label="Von Mises",
                         method="update"
                     )
@@ -621,6 +638,8 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         x=0, y=1.085, yref="paper", align="left")
     ]
     )
+    print(deflection_3d)
+    # deflection_3d.add_trace()
 
     deflection.update_layout(transition_duration=50)
 
