@@ -156,117 +156,117 @@ def von_mises_stress(F=None, x=None, xsection=None, a=None, L=None, support_type
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.layout = html.Div(
     [
-    #
-    # Header
-    #
-    html.H1(
-        children="Beam Bending Visualization",
-        style={
-            'textAlign': 'center',
-        }),
-    #
-    # Inputs
-    #
-    html.H2("Input Parameters"),
-    html.Div([
+        #
+        # Header
+        #
+        html.H1(
+            children="Beam Bending Visualization",
+            style={
+                'textAlign': 'center',
+            }),
+        #
+        # Inputs
+        #
+        html.H2("Input Parameters"),
         html.Div([
-            html.Label('Material', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.RadioItems(
-                id='material-type',
-                options=[
-                    {'label': 'Aluminum', 'value': 'aluminum'},
-                    {'label': 'Wood', 'value': 'wood'},
-                    {'label': 'Titanium', 'value': 'titanium'},
-                    {'label': 'Steel', 'value': 'steel'}
-                ],
-                labelStyle={'display': 'block'},
-                value='aluminum'
-            ),
-        ], style={'width': '10%'}),
-        html.Div([
-            html.Label('Beam Length (m)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.Input(id="beam-length", type="text", step=0.001, value=10.0, style={'width': '100%'}),
-            html.Label('Beam Cross Section', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.Dropdown(
-                id='xsection',
-                options=[
-                    {'label': 'Rectangular', 'value': 'rectangular'},
-                    {'label': 'Circle', 'value': 'circle'}
-                ],
-                value='rectangular'
-            ),
-            html.Div(id='xsection-container', children=
-            [
-                dcc.Input(id="b", type="text", step=0.1, value=0.1),
-                dcc.Input(id="h", type="text", step=0.1, value=0.1),
-                dcc.Input(id="r", type="text", value=0.1)
-            ]),
-        ], style={'paddingRight': 40, 'width': '20%'}),
-        html.Div([
-            html.Label('Force Magnitude (N)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0, style={'width': '100%'}),
-            html.Br(),
-            html.Label('Force Location (x)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.Slider(
-                id='force-location',
-                min=0,
-                step=0.001,
-                max=10,
-                marks={
-                    0: {'label': '0m', 'style': {'color': '#77b0b1'}}},
-                tooltip={"placement": "bottom", "always_visible": True},
-                value=10,
-            )
-        ], style={'paddingRight': 40, 'width': '20%'}),
-        html.Div([
-            html.Label('Support Type', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.RadioItems(
-                id='support-type',
-                options=[
-                    {'label': 'Simply Supported', 'value': 'simply_supported'},
-                    {'label': 'Cantilever', 'value': 'cantilever'},
-                ],
-                labelStyle={'display': 'block'},
-                value='simply_supported'
-            ),
-            html.Div(id='support-type-image', children=[]),
-        ], style={'width': '50%'}),
-    ], style={'display': 'flex', 'flex-direction': 'row'}),
-    #
-    # Visualization
-    #
-    html.H2("Visualization"),
+            html.Div([
+                html.Label('Material', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.RadioItems(
+                    id='material-type',
+                    options=[
+                        {'label': 'Aluminum', 'value': 'aluminum'},
+                        {'label': 'Wood', 'value': 'wood'},
+                        {'label': 'Titanium', 'value': 'titanium'},
+                        {'label': 'Steel', 'value': 'steel'}
+                    ],
+                    labelStyle={'display': 'block'},
+                    value='aluminum'
+                ),
+            ], style={'width': '10%'}),
+            html.Div([
+                html.Label('Beam Length (m)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.Input(id="beam-length", type="text", step=0.001, value=10.0, style={'width': '100%'}),
+                html.Label('Beam Cross Section', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.Dropdown(
+                    id='xsection',
+                    options=[
+                        {'label': 'Rectangular', 'value': 'rectangular'},
+                        {'label': 'Circle', 'value': 'circle'}
+                    ],
+                    value='rectangular'
+                ),
+                html.Div(id='xsection-container', children=
+                [
+                    dcc.Input(id="b", type="text", step=0.1, value=0.1),
+                    dcc.Input(id="h", type="text", step=0.1, value=0.1),
+                    dcc.Input(id="r", type="text", value=0.1)
+                ]),
+            ], style={'paddingRight': 40, 'width': '20%'}),
+            html.Div([
+                html.Label('Force Magnitude (N)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0, style={'width': '100%'}),
+                html.Br(),
+                html.Label('Force Location (x)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.Slider(
+                    id='force-location',
+                    min=0,
+                    step=0.001,
+                    max=10,
+                    marks={
+                        0: {'label': '0m', 'style': {'color': '#77b0b1'}}},
+                    tooltip={"placement": "bottom", "always_visible": True},
+                    value=10,
+                )
+            ], style={'paddingRight': 40, 'width': '20%'}),
+            html.Div([
+                html.Label('Support Type', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
+                dcc.RadioItems(
+                    id='support-type',
+                    options=[
+                        {'label': 'Simply Supported', 'value': 'simply_supported'},
+                        {'label': 'Cantilever', 'value': 'cantilever'},
+                    ],
+                    labelStyle={'display': 'block'},
+                    value='simply_supported'
+                ),
+                html.Div(id='support-type-image', children=[]),
+            ], style={'width': '50%'}),
+        ], style={'display': 'flex', 'flex-direction': 'row'}),
+        #
+        # Visualization
+        #
+        html.H2("Visualization"),
 
-    html.Div([
         html.Div([
-            dcc.Graph(
-                id='deflection_3d'
-            )
-        ], style={'width': '50%'}),
+            html.Div([
+                dcc.Graph(
+                    id='deflection_3d'
+                )
+            ], style={'width': '50%'}),
+            html.Div([
+                dcc.Graph(
+                    id='deflection_graph'
+                )
+            ], style={'width': '50%'}),
+        ], style={'display': 'flex', 'flex-direction': 'row'}),
         html.Div([
-            dcc.Graph(
-                id='deflection_graph'
-            )
-        ], style={'width': '50%'}),
-    ], style={'display': 'flex', 'flex-direction': 'row'}),
-    html.Div([
-        html.Div([
-            dcc.Graph(
-                id='shear_stress_graph'
-            )
-        ], style={'width': '33%'}),
-        html.Div([
-            dcc.Graph(
-                id='bending_stress_graph'
-            )
-        ], style={'width': '33%'}),
-        html.Div([
-            dcc.Graph(
-                id='von_mises_graph'
-            )
-        ], style={'width': '33%'})
-    ], style={'display': 'flex', 'flex-direction': 'row'})
-],
+            html.Div([
+                dcc.Graph(
+                    id='shear_stress_graph'
+                )
+            ], style={'width': '33%'}),
+            html.Div([
+                dcc.Graph(
+                    id='bending_stress_graph'
+                )
+            ], style={'width': '33%'}),
+            html.Div([
+                dcc.Graph(
+                    id='von_mises_graph'
+                )
+            ], style={'width': '33%'})
+        ], style={'display': 'flex', 'flex-direction': 'row'})
+    ],
     className="column"
 )
 
@@ -375,7 +375,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     # print(xsection)
 
     # still need to figure out how to turn into rectangle, right now just pixel size for cylinder
-    bar_width = 15 if xs =='rectangular' else 30
+    bar_width = 15 if xs == 'rectangular' else 30
     step = 0.01
     X = np.arange(start=0.0, stop=float(bl) + step, step=step)
     # X = np.linspace(start = 0.0, stop = float(bl), num = N)
@@ -441,7 +441,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             )
         ),
         showlegend=False,
-        height = 600
+        height=600
     )
 
     layout_shear_stress = go.Layout(
@@ -504,7 +504,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         showlegend=False
     )
 
-    min_deflection = min(Y)*2
+    min_deflection = min(Y) * 2
     max_deflection = max(Y)
     line_deflection = go.Scatter(
         x=X,
@@ -517,7 +517,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             cmin=min_deflection,
             color=Y,
             colorbar=dict(
-                title = 'Deflection (m)'
+                title='Deflection (m)'
             ),
             colorscale="thermal"
         ),
@@ -556,7 +556,6 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         fillcolor='rgba(255, 255, 0, 0.1)'
     )
 
-
     line_3d_deflection = go.Scatter3d(
         x=X, y=Y, z=[0] * len(X),
         marker=dict(
@@ -571,8 +570,8 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         customdata=vonmises_stress,
         hovertemplate="distance: %{x} m<br>" +
-                  "deflection: %{y} m<br>" +
-                  "stress: %{customdata} Pa<extra></extra>"
+                      "deflection: %{y:.2f} m<br>" +
+                      "stress: %{customdata:.2f} Pa<extra></extra>"
     )
     fl_index = np.where(X == fl)[0][0]
     pressure_point_width = 25
@@ -586,10 +585,12 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         ),
         hovertemplate="<b>Force Location</b><br>" +
                       "distance: %{x} m<br>" +
-                      "deflection: %{y} m<br>" +
-                      "stress: %{customdata} Pa<extra></extra>"
+                      "deflection: %{y:.2f} m<br>" +
+                      "stress: %{customdata:.2f} Pa<extra></extra>",
+        customdata=[vonmises_stress[fl_index]]
     )
 
+    print(vonmises_stress[fl_index])
 
     axis = go.Scatter(
         x=[0, span],
@@ -610,18 +611,22 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 buttons=list([
                     dict(
                         args=[
-                            {"marker":[{"color":Y, "size":bar_width, "colorscale":"thermal",
-                              "symbol": ("square" if xs == "rectangular" else "circle"),
-                              "colorbar":{"title":{"text":"Deflection (m)"}, "exponentformat": "e" }}, {"size":pressure_point_width, "color":'rgba(135, 206, 250, 0.8)',"symbol":pressure_point_symbol}]
+                            {"marker": [{"color": Y, "size": bar_width, "colorscale": "thermal",
+                                         "symbol": ("square" if xs == "rectangular" else "circle"),
+                                         "colorbar": {"title": {"text": "Deflection (m)"}, "exponentformat": "e"}},
+                                        {"size": pressure_point_width, "color": 'rgba(135, 206, 250, 0.8)',
+                                         "symbol": pressure_point_symbol}]
                              }],
                         label="Deflection",
                         method="update"
                     ),
                     dict(
                         args=[
-                            {"marker":[{"color":vonmises_stress,"size":bar_width, "colorscale":"thermal",
-                             "symbol": ("square" if xs == "rectangular" else "circle"),
-                             "colorbar":{"title":{"text":"Stress (Pa)", "exponentformat": "e"} }}, {"size":pressure_point_width, "color":'rgba(135, 206, 250, 0.8)',"symbol":pressure_point_symbol}]
+                            {"marker": [{"color": vonmises_stress, "size": bar_width, "colorscale": "thermal",
+                                         "symbol": ("square" if xs == "rectangular" else "circle"),
+                                         "colorbar": {"title": {"text": "Stress (Pa)", "exponentformat": "e"}}},
+                                        {"size": pressure_point_width, "color": 'rgba(135, 206, 250, 0.8)',
+                                         "symbol": pressure_point_symbol}]
                              }],
                         label="Von Mises",
                         method="update"
@@ -630,16 +635,16 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                 direction="down",
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.06,
+                x=0.14,
                 xanchor="left",
                 y=1.13,
                 yanchor="top"
             )
         ],
-    annotations=[
-        dict(text="Color bar:", showarrow=False,
-        x=0, y=1.085, yref="paper", align="left")
-    ]
+        annotations=[
+            dict(text="Color bar:", showarrow=False,
+                 x=0, y=1.085, yref="paper", align="left")
+        ]
     )
 
     deflection.update_layout(transition_duration=50)
