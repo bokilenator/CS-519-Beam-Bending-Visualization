@@ -153,8 +153,9 @@ def von_mises_stress(F=None, x=None, xsection=None, a=None, L=None, support_type
 # Application
 #######################################################################
 
-app = dash.Dash(__name__)
-app.layout = html.Div([
+app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
+app.layout = html.Div(
+    [
     #
     # Header
     #
@@ -203,7 +204,7 @@ app.layout = html.Div([
         ], style={'paddingRight': 40, 'width': '20%'}),
         html.Div([
             html.Label('Force Magnitude (N)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-            dcc.Input(id="force-mag", type="text", step=0.001, value=500.0, style={'width': '100%'}),
+            dcc.Input(id="force-mag", type="text", step=0.001, value=50000.0, style={'width': '100%'}),
             html.Br(),
             html.Label('Force Location (x)', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
             dcc.Slider(
@@ -235,16 +236,7 @@ app.layout = html.Div([
     # Visualization
     #
     html.H2("Visualization"),
-    html.Label('3D Coloring', style={'color': 'black', 'fontSize': 20, 'font-weight': 'bold'}),
-    dcc.RadioItems(
-        id='colormap-selection',
-        options=[
-            {'label': 'Deflection', 'value': 'deflection'},
-            {'label': 'Von Mises', 'value': 'von_mises'},
-        ],
-        labelStyle={'display': 'block'},
-        value='deflection'
-    ),
+
     html.Div([
         html.Div([
             dcc.Graph(
@@ -274,7 +266,9 @@ app.layout = html.Div([
             )
         ], style={'width': '33%'})
     ], style={'display': 'flex', 'flex-direction': 'row'})
-])
+],
+    className="column"
+)
 
 
 @app.callback(
@@ -355,9 +349,8 @@ def update_cross_section_container(value):
     Input('b', 'value'),
     Input('h', 'value'),
     Input('r', 'value'),
-    Input('colormap-selection', 'value'),
 )
-def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
+def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
     print('------')
     print('You have selected Material Type : "{}"'.format(mt))
     print('You have selected Support Type : "{}"'.format(st))
@@ -368,7 +361,6 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
     print('You have selected b : "{}"'.format(b))
     print('You have selected h : "{}"'.format(h))
     print('You have selected r : "{}"'.format(r))
-    print('You have selected colormap : "{}"'.format(cm))
     print('------')
 
     xsection = {}
@@ -442,6 +434,10 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
                 showexponent='all',
                 exponentformat='e',
                 range=[-1 * span, span]
+            ),
+            zaxis=dict(
+                title='',
+                tickvals=[]
             )
         ),
         showlegend=False,
@@ -560,31 +556,19 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
         fillcolor='rgba(255, 255, 0, 0.1)'
     )
 
-    color = None
-    title = None
-    if cm == 'deflection':
-        color = Y
-        title = 'Deflection (m)'
-    elif cm == 'von_mises':
-        color = vonmises_stress
-        title = 'Stress (Pa)'
         
     line_3d_deflection = go.Scatter3d(
-        x=X, z=Y, y=[0] * len(X),
+        x=X, y=Y, z=[0] * len(X),
         marker=dict(
             size=bar_width,
-            color=color,
+            color=Y,
             colorscale='thermal',
             colorbar=dict(
-                title=title,
+                title='Deflection (m)',
                 exponentformat='e',
             ),
             symbol="square" if xs == "rectangular" else "circle"
-        ),
-        #line=dict(
-        #    color='darkblue',
-        #    width=10
-        #),
+        )
     )
 
     axis = go.Scatter(
@@ -599,6 +583,44 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r, cm):
     bending = go.Figure(data=[line_bending_stress], layout=layout_bending_stress)
     vonmises = go.Figure(data=[line_vonmises_stress], layout=layout_vonmises_stress)
     deflection_3d = go.Figure(data=line_3d_deflection, layout=layout_deflection_3d)
+
+    deflection_3d.update_layout(
+        updatemenus=[
+            dict(
+                buttons=list([
+                    dict(
+                        args=[
+                            {"marker":{"color":Y, "size":bar_width, "colorscale":"thermal",
+                              "symbol": ("square" if xs == "rectangular" else "circle"),
+                              "colorbar":{"title":{"text":"Deflection (m)"}, "exponentformat": "e" }}
+                             },{}],
+                        label="Deflection",
+                        method="update"
+                    ),
+                    dict(
+                        args=[
+                            {"marker":{"color":vonmises_stress,"size":bar_width, "colorscale":"thermal",
+                             "symbol": ("square" if xs == "rectangular" else "circle"),
+                             "colorbar":{"title":{"text":"Stress (Pa)", "exponentformat": "e"} }}
+                             },{}],
+                        label="Von Mises",
+                        method="update"
+                    )
+                ]),
+                direction="down",
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.06,
+                xanchor="left",
+                y=1.13,
+                yanchor="top"
+            )
+        ],
+    annotations=[
+        dict(text="Color bar:", showarrow=False,
+        x=0, y=1.085, yref="paper", align="left")
+    ]
+    )
 
     deflection.update_layout(transition_duration=50)
 
