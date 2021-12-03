@@ -556,7 +556,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         fillcolor='rgba(255, 255, 0, 0.1)'
     )
 
-        
+
     line_3d_deflection = go.Scatter3d(
         x=X, y=Y, z=[0] * len(X),
         marker=dict(
@@ -569,8 +569,10 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             ),
             symbol="square" if xs == "rectangular" else "circle"
         ),
-        hovertemplate="distance: %{x}<br>" +
-                  "deflection: %{y}<br><extra></extra>"
+        customdata=vonmises_stress,
+        hovertemplate="distance: %{x} m<br>" +
+                  "deflection: %{y} m<br>" +
+                  "stress: %{customdata} Pa<extra></extra>"
     )
     fl_index = np.where(X == fl)[0][0]
     pressure_point_width = 25
@@ -583,8 +585,9 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
             symbol=pressure_point_symbol
         ),
         hovertemplate="<b>Force Location</b><br>" +
-                      "distance: %{x}<br>" +
-                      "deflection: %{y}<br><extra></extra>"
+                      "distance: %{x} m<br>" +
+                      "deflection: %{y} m<br>" +
+                      "stress: %{customdata} Pa<extra></extra>"
     )
 
 
@@ -638,8 +641,6 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
         x=0, y=1.085, yref="paper", align="left")
     ]
     )
-    print(deflection_3d)
-    # deflection_3d.add_trace()
 
     deflection.update_layout(transition_duration=50)
 
