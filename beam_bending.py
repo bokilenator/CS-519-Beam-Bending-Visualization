@@ -573,7 +573,7 @@ def update_graph(mt, st, bl, xs, fl, fm, b, h, r):
                   "deflection: %{y}<br><extra></extra>"
     )
     fl_index = np.where(X == fl)[0][0]
-    pressure_point_width = bar_width * 1.5
+    pressure_point_width = 25
     pressure_point_symbol = "x"
     pressure_point = go.Scatter3d(
         x=[fl], y=[Y[fl_index]], z=[0],
