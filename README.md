@@ -1,2 +1,18 @@
-# CS-519-Beam-Bending-Visualization
-Project for UIUC CS 519: Scientific Visualization
+# Beam Bending Visualization
+## Final Project for UIUC CS 519: Scientific Visualization
+By [Ben Tan](btan90@gmail.com), [Karan Bokil](karanb2@illinois.edu), 
+[Manish Khanna](manish2@illinois.edu)
+### Installation
+See [requirements.txt](requirements.txt) for required libraries.
+```bash
+mkvirtualenv cs519 --python=/usr/bin/python3.8
+pip install -r requirements.txt
+```
+### Running locally
+```bash
+python beam_bending.py
+```
+### Documentation
+See [Report](Report/Report.docx).
+### Website Demo
+https://beambendingviz.pythonanywhere.com/
