@@ -1,6 +1,6 @@
 # Beam Bending Visualization
 ## Final Project for UIUC CS 519: Scientific Visualization
-By [Ben Tan](btan90@gmail.com), [Karan Bokil](karanb2@illinois.edu), 
+By [Ben Tan](https://github.com/benhtan), [Karan Bokil](karanb2@illinois.edu), 
 [Manish Khanna](manish2@illinois.edu)
 ### Installation
 See [requirements.txt](requirements.txt) for required libraries.
