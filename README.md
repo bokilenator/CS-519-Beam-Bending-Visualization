@@ -13,6 +13,6 @@ pip install -r requirements.txt
 python beam_bending.py
 ```
 ### Documentation
-See [Report](Report/Report.docx).
+See [Report](Report/Report.pdf).
 ### Website Demo
 https://beambendingviz.pythonanywhere.com/
